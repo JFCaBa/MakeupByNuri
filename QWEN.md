@@ -28,7 +28,7 @@ This is a Next.js 15 application for "Maquillaje Profesional" (Professional Make
 ## Project Structure
 
 ```
-/Users/jose/makeupbynuri/
+/opt/MakeupByNuri/
 ├── .dockerignore
 ├── .gitignore
 ├── Caddyfile
