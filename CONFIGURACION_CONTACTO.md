@@ -7,7 +7,7 @@ Para configurar los enlaces de contacto y redes sociales, necesitas actualizar l
 ### 🔗 WhatsApp (Principal - Popup de Reservar Cita)
 Busca la línea:
 ```jsx
-<a href="https://wa.me/TU_NUMERO_TELEFONO" target="_blank" rel="noopener noreferrer">
+<a href="https://wa.me/34625253343" target="_blank" rel="noopener noreferrer">
 ```
 
 Reemplázala con:

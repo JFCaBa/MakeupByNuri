@@ -18,8 +18,9 @@ export default function Home() {
     message: ''
   });
   const [isReserveDialogOpen, setIsReserveDialogOpen] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isServiceDetailsOpen, setIsServiceDetailsOpen] = useState(false);
+  const [selectedServiceIndex, setSelectedServiceIndex] = useState(0);
+  const [selectedGalleryImageIndex, setSelectedGalleryImageIndex] = useState(0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -28,87 +29,243 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Aquí iría la lógica de envío del formulario
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Show success message
+        alert('¡Mensaje enviado correctamente! Nos pondremos en contacto contigo pronto.');
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          message: ''
+        });
+      } else {
+        // Show error message
+        alert('Error al enviar el mensaje: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Error al enviar el mensaje. Por favor, inténtalo de nuevo más tarde.');
+    }
   };
 
-  const openGallery = (index: number) => {
-    setSelectedImageIndex(index);
-    setIsGalleryOpen(true);
+  const openServiceDetails = (index: number) => {
+    setSelectedServiceIndex(index);
+    setSelectedGalleryImageIndex(0); // Start with the first image in the gallery
+    setIsServiceDetailsOpen(true);
   };
 
-  const navigateGallery = (direction: 'prev' | 'next') => {
+  const navigateServiceGallery = (direction: 'prev' | 'next') => {
+    const currentService = services[selectedServiceIndex];
+    if (!currentService.gallery) return; // If no gallery, do nothing
+
     if (direction === 'prev') {
-      setSelectedImageIndex((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
+      setSelectedGalleryImageIndex((prev) => 
+        prev === 0 ? currentService.gallery.length - 1 : prev - 1
+      );
     } else {
-      setSelectedImageIndex((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
+      setSelectedGalleryImageIndex((prev) => 
+        prev === currentService.gallery.length - 1 ? 0 : prev + 1
+      );
     }
   };
 
   const services = [
     {
-      title: "Maquillaje Social",
-      description: "Perfecto para eventos especiales, fiestas y reuniones importantes",
+      title: "Maquillaje de día",
+      description: "Look natural y luminoso ideal para eventos diurnos con acabados frescos y de larga duración (35 €)",
       image: "/images/services/service-1.jpg",
-      features: ["Duradero", "Personalizado", "Alta calidad"]
+      features: ["Duradero", "Personalizado", "Fresco"],
+      gallery: [
+        { 
+          image: "/images/gallery/gallery-1.jpg", 
+          title: "Maquillaje de día - Ejemplo 1",
+          description: "Look natural y luminoso ideal para eventos diurnos con acabados frescos y de larga duración."
+        },
+        { 
+          image: "/images/gallery/gallery-2.jpg", 
+          title: "Maquillaje de día - Ejemplo 2",
+          description: "Día luminoso con colores suaves y acabado natural."
+        },
+        { 
+          image: "/images/gallery/gallery-3.jpg", 
+          title: "Maquillaje de día - Ejemplo 3",
+          description: "Look diurno con toques sutiles y acabado mate duradero."
+        }
+      ]
     },
     {
-      title: "Maquillaje de Novia",
-      description: "Tu día especial merece un maquillaje impecable y emocionante",
+      title: "Maquillaje de noche",
+      description: "Maquillaje intenso y llamativo para eventos nocturnos con iluminación dramática y colores vibrantes (45 €)",
       image: "/images/services/service-1.jpg",
-      features: ["Prueba incluida", "Resistente al agua", "Fotográfico"]
+      features: ["Efectos especiales", "Fotogénico", "Duradero"],
+      gallery: [
+        { 
+          image: "/images/gallery/gallery-4.jpg", 
+          title: "Maquillaje de noche - Ejemplo 1",
+          description: "Look intenso y llamativo para eventos nocturnos con iluminación dramática."
+        },
+        { 
+          image: "/images/gallery/gallery-5.jpg", 
+          title: "Maquillaje de noche - Ejemplo 2",
+          description: "Noche elegante con colores metalizados y acabado luminoso."
+        },
+        { 
+          image: "/images/gallery/gallery-6.jpg", 
+          title: "Maquillaje de noche - Ejemplo 3",
+          description: "Diseño nocturno con tonos profundos y contorneado definido."
+        }
+      ]
     },
     {
-      title: "Maquillaje Artístico",
-      description: "Creatividad sin límites para producciones y eventos temáticos",
+      title: "Novia",
+      description: "El día más especial merece un maquillaje impecable, duradero y fotogénico. Incluye prueba previa (<150 €)",
       image: "/images/services/service-1.jpg",
-      features: ["Creativo", "Temático", "Profesional"]
+      features: ["Prueba incluida", "Resistente al agua", "Fotogénico"],
+      gallery: [
+        { 
+          image: "/images/gallery/gallery-1.jpg", 
+          title: "Maquillaje de Novia - Ejemplo 1",
+          description: "El día más especial merece un maquillaje impecable, duradero y fotogénico."
+        },
+        { 
+          image: "/images/gallery/gallery-2.jpg", 
+          title: "Maquillaje de Novia - Ejemplo 2",
+          description: "Look nupcial elegante con acabado fotogénico y duradero todo el día."
+        },
+        { 
+          image: "/images/gallery/gallery-3.jpg", 
+          title: "Maquillaje de Novia - Ejemplo 3",
+          description: "Maquillaje de novia natural que resalta la belleza sin opacar el vestido."
+        }
+      ]
+    },
+    {
+      title: "Invitadas",
+      description: "Maquillaje elegante y personalizado para destacar en cualquier evento especial como boda, comunión o fiesta (40 €)",
+      image: "/images/services/service-1.jpg",
+      features: ["Elegante", "Personalizado", "Duradero"],
+      gallery: [
+        { 
+          image: "/images/gallery/gallery-4.jpg", 
+          title: "Maquillaje para Invitadas - Ejemplo 1",
+          description: "Look elegante y personalizado para destacar en cualquier evento especial."
+        },
+        { 
+          image: "/images/gallery/gallery-5.jpg", 
+          title: "Maquillaje para Invitadas - Ejemplo 2",
+          description: "Perfecto para eventos como bodas, comuniones o fiestas especiales."
+        },
+        { 
+          image: "/images/gallery/gallery-6.jpg", 
+          title: "Maquillaje para Invitadas - Ejemplo 3",
+          description: "Diseño versátil que resalta la belleza natural de la invitada."
+        }
+      ]
+    },
+    {
+      title: "Fallera",
+      description: "Maquillaje tradicional para la festividad de las Fallas, con colores vivos y detalles que realzan la belleza del traje (45 €)",
+      image: "/images/services/service-1.jpg",
+      features: ["Tradicional", "Colores vivos", "Detallado"],
+      gallery: [
+        { 
+          image: "/images/gallery/gallery-1.jpg", 
+          title: "Maquillaje Fallera - Ejemplo 1",
+          description: "Maquillaje tradicional para la festividad de las Fallas, con colores vivos."
+        },
+        { 
+          image: "/images/gallery/gallery-2.jpg", 
+          title: "Maquillaje Fallera - Ejemplo 2",
+          description: "Detalles que realzan la belleza del traje con colores tradicionales."
+        },
+        { 
+          image: "/images/gallery/gallery-3.jpg", 
+          title: "Maquillaje Fallera - Ejemplo 3",
+          description: "Look tradicional con acabados que complementan el vestuario fallero."
+        }
+      ]
+    },
+    {
+      title: "Maquillaje artístico",
+      description: "Diseños creativos y personalizados para ocasiones únicas, incluyendo efectos especiales y caracterizaciones (45€ - 70€)",
+      image: "/images/services/service-1.jpg",
+      features: ["Creativo", "Personalizado", "Profesional"],
+      gallery: [
+        { 
+          image: "/images/gallery/gallery-4.jpg", 
+          title: "Maquillaje Artístico - Ejemplo 1",
+          description: "Diseños creativos y personalizados para ocasiones únicas."
+        },
+        { 
+          image: "/images/gallery/gallery-5.jpg", 
+          title: "Maquillaje Artístico - Ejemplo 2",
+          description: "Incluyendo efectos especiales y caracterizaciones detalladas."
+        },
+        { 
+          image: "/images/gallery/gallery-6.jpg", 
+          title: "Maquillaje Artístico - Ejemplo 3",
+          description: "Caracterizaciones profesionales para producciones y eventos temáticos."
+        }
+      ]
     }
   ];
 
   const gallery = [
     { 
       image: "/images/gallery/gallery-1.jpg", 
-      title: "Maquillaje Profesional Ejemplo 1",
-      description: "Ejemplo de nuestro trabajo profesional de maquillaje. Cada look es único y personalizado según las necesidades y preferencias de la clienta.",
+      title: "Fallera",
+      description: "Maquillaje tradicional para la festividad de las Fallas, con colores vivos y detalles que realzan la belleza del traje.",
       duration: "2 horas",
       products: "Foundation HD, Pigments profesionales, Fijador de larga duración"
     },
     { 
       image: "/images/gallery/gallery-2.jpg", 
-      title: "Maquillaje Profesional Ejemplo 2",
-      description: "Demostración de técnicas avanzadas de maquillaje con productos de alta calidad para resultados duraderos y naturales.",
+      title: "Novia",
+      description: "El día más especial merece un maquillaje impecable, duradero y fotogénico que resalte tu belleza natural.",
       duration: "1.5 horas",
       products: "Base ligera, Iluminador sutil, Labiales de larga duración"
     },
     { 
       image: "/images/gallery/gallery-1.jpg", 
-      title: "Maquillaje Profesional Ejemplo 3",
-      description: "Trabajo profesional destacando la importancia de la preparación de la piel y la elección correcta de tonos.",
-      duration: "2.5 horas",
-      products: "Pigments profesionales, Glitters, Colores intensos, Efectos especiales"
+      title: "Invitadas",
+      description: "Maquillaje elegante y personalizado para destacar en cualquier evento especial como boda, comunión o fiesta.",
+      duration: "1.5 horas",
+      products: "Pigments profesionales, Colores tierra, Efectos especiales"
     },
     { 
       image: "/images/gallery/gallery-2.jpg", 
-      title: "Maquillaje Profesional Ejemplo 4",
-      description: "Ejemplo de maquillaje para evento especial, combinando elegancia y duración para largas jornadas.",
+      title: "Evento día",
+      description: "Look natural y luminoso ideal para eventos diurnos con acabados frescos y de larga duración.",
       duration: "1.5 horas",
-      products: "Base mineral, Colores tierra, Máscara de pestañas waterproof"
+      products: "Base mineral, Colores pastel, Máscara de pestañas waterproof"
     },
     { 
       image: "/images/gallery/gallery-1.jpg", 
-      title: "Maquillaje Profesional Ejemplo 5",
-      description: "Técnica de contouring y iluminación para resaltar los mejores rasgos faciales con resultado natural.",
+      title: "Evento noche",
+      description: "Maquillaje intenso y llamativo para eventos nocturnos con iluminación dramática y colores vibrantes.",
       duration: "2 horas",
       products: "Iluminadores premium, Sombras metálicas, Labios vinilos"
     },
     { 
       image: "/images/gallery/gallery-2.jpg", 
-      title: "Maquillaje Profesional Ejemplo 6",
-      description: "Finalización del maquillaje profesional con detalles de precisión y productos de última generación.",
-      duration: "3 horas",
+      title: "Fiestas especiales",
+      description: "Diseños creativos y personalizados para ocasiones únicas, incluyendo efectos especiales y caracterizaciones.",
+      duration: "2-3 horas",
       products: "Efectos 3D, Body painting, Prostéticos, Aerógrafo profesional"
     }
   ];
@@ -175,14 +332,14 @@ export default function Home() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 pt-4">
-                  <a href="https://wa.me/TU_NUMERO_TELEFONO" target="_blank" rel="noopener noreferrer">
+                  <a href="https://wa.me/34625253343" target="_blank" rel="noopener noreferrer">
                     <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-6 text-lg font-medium">
                       <MessageCircle className="w-6 h-6 mr-3" />
                       Reservar por WhatsApp
                       <div className="text-xs opacity-80 ml-auto">Recomendado</div>
                     </Button>
                   </a>
-                  <a href="tel:TU_NUMERO_TELEFONO">
+                  <a href="tel:+34625253343">
                     <Button variant="outline" className="w-full border-2 py-6 text-lg font-medium hover:bg-accent hover:text-accent-foreground">
                       <Phone className="w-6 h-6 mr-3" />
                       Llamar Ahora
@@ -197,10 +354,10 @@ export default function Home() {
             </Dialog>
             
             <Button size="lg" variant="outline" className="border-white bg-black/20 backdrop-blur-sm text-white hover:bg-white hover:text-black px-8 py-6 text-lg font-medium" onClick={() => {
-              const gallerySection = document.getElementById('gallery');
-              gallerySection?.scrollIntoView({ behavior: 'smooth' });
+              const servicesSection = document.getElementById('services');
+              servicesSection?.scrollIntoView({ behavior: 'smooth' });
             }}>
-              Ver Trabajos
+              Ver Servicios
             </Button>
           </div>
         </div>
@@ -244,7 +401,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4 bg-secondary/30">
+      <section id="services" className="py-20 px-4 bg-secondary/30">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Servicios</Badge>
@@ -259,7 +416,7 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openServiceDetails(index)}>
                 <div className="aspect-square overflow-hidden">
                   <img 
                     src={service.image} 
@@ -287,42 +444,10 @@ export default function Home() {
               </Card>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Gallery Section */}
-      <section id="gallery" className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-primary text-primary-foreground">Galería</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Nuestros
-              <span className="text-primary block">Trabajos</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Una muestra de nuestra experiencia y dedicación en cada detalle
-            </p>
-          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {gallery.map((item, index) => (
-              <div key={index} className="relative group overflow-hidden rounded-lg cursor-pointer" onClick={() => openGallery(index)}>
-                <img 
-                  src={item.image} 
-                  alt={`Trabajo de maquillaje ${item.title}`}
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-white font-semibold text-lg">{item.title}</h3>
-                    <div className="flex items-center text-white/80 text-sm mt-1">
-                      <ZoomIn className="w-4 h-4 mr-1" />
-                      Click para ver detalles
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="mt-12 p-6 bg-primary/10 rounded-lg max-w-4xl mx-auto">
+            <h3 className="text-xl font-semibold mb-3">Información adicional</h3>
+            <p className="text-muted-foreground">Para maquillaje a domicilio se cobrará un plus dependiendo de la distancia.</p>
           </div>
         </div>
       </section>
@@ -375,17 +500,17 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-primary" />
-                  <span>+34 600 000 000</span>
+                  <span>‭+34 625 253 343‬</span>
                 </div>
                 
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-primary" />
-                  <span>info@maquillajeprofesional.com</span>
+                  <span>info@makeupbynuri.com</span>
                 </div>
                 
                 <div className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-primary" />
-                  <span>Calle Principal 123, Ciudad</span>
+                  <span>Massanassa - Valencia</span>
                 </div>
               </div>
               
@@ -397,54 +522,21 @@ export default function Home() {
               </div>
             </div>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Envíanos un Mensaje</CardTitle>
-                <CardDescription>
-                  Responde lo antes posible con toda la información que necesites
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <Input
-                    name="name"
-                    placeholder="Tu nombre"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  
-                  <Input
-                    name="email"
-                    type="email"
-                    placeholder="Tu email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  
-                  <Input
-                    name="phone"
-                    placeholder="Tu teléfono"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                  />
-                  
-                  <Textarea
-                    name="message"
-                    placeholder="Cuéntanos sobre tu evento..."
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    rows={4}
-                    required
-                  />
-                  
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                    Enviar Mensaje
+            <div className="flex flex-col justify-center">
+              <div className="bg-secondary p-8 rounded-lg text-center">
+                <h3 className="text-2xl font-semibold mb-4">Contáctanos por WhatsApp</h3>
+                <p className="text-muted-foreground mb-6">Escríbenos directamente por WhatsApp para una respuesta inmediata. Puedes enviar fotos de referencia y resolver todas tus dudas.</p>
+                
+                <a href="https://wa.me/34625253343" target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white text-lg py-6 w-full">
+                    <MessageCircle className="w-5 h-5 mr-3" />
+                    Enviar Mensaje por WhatsApp
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
+                </a>
+                
+                <p className="text-sm text-muted-foreground mt-4">Recibirás respuesta lo antes posible</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -458,13 +550,13 @@ export default function Home() {
           </div>
           
                   <div className="flex justify-center gap-6 mb-8">
-            <a href="tel:TU_NUMERO_TELEFONO">
+            <a href="tel:+34625253343">
               <Button variant="ghost" size="sm" className="text-background hover:bg-background/20">
                 <Phone className="w-4 h-4 mr-2" />
                 Llamar
               </Button>
             </a>
-            <a href="https://wa.me/TU_NUMERO_TELEFONO" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.me/34625253343" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="text-background hover:bg-background/20">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 WhatsApp
@@ -490,13 +582,13 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Gallery Lightbox Modal */}
-      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+      {/* Service Details Lightbox Modal */}
+      <Dialog open={isServiceDetailsOpen} onOpenChange={setIsServiceDetailsOpen}>
         <DialogContent className="max-w-[98vw] w-full max-h-[95vh] p-0 overflow-hidden !max-w-none">
           <VisuallyHidden>
-            <DialogTitle>Galería de Trabajos de Maquillaje</DialogTitle>
+            <DialogTitle>Detalles del Servicio de Maquillaje</DialogTitle>
             <DialogDescription>
-              Vista detallada de nuestros trabajos de maquillaje profesional con información sobre productos y duración
+              Información detallada sobre el servicio de maquillaje seleccionado
             </DialogDescription>
           </VisuallyHidden>
           <div className="flex flex-col h-[95vh] min-h-[500px]">
@@ -505,15 +597,15 @@ export default function Home() {
               {/* Main Image */}
               <div className="w-full h-full flex items-center justify-center p-4">
                 <img
-                  src={gallery[selectedImageIndex].image}
-                  alt={gallery[selectedImageIndex].title}
+                  src={services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.image || services[selectedServiceIndex].image}
+                  alt={services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.title || services[selectedServiceIndex].title}
                   className="max-w-full max-h-full object-contain"
                 />
               </div>
 
               {/* Navigation Arrows */}
               <Button
-                onClick={() => navigateGallery('prev')}
+                onClick={() => navigateServiceGallery('prev')}
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 z-10"
                 size="icon"
               >
@@ -521,7 +613,7 @@ export default function Home() {
               </Button>
 
               <Button
-                onClick={() => navigateGallery('next')}
+                onClick={() => navigateServiceGallery('next')}
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 z-10"
                 size="icon"
               >
@@ -530,7 +622,7 @@ export default function Home() {
 
               {/* Close Button */}
               <Button
-                onClick={() => setIsGalleryOpen(false)}
+                onClick={() => setIsServiceDetailsOpen(false)}
                 className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 z-10"
                 size="icon"
               >
@@ -539,25 +631,25 @@ export default function Home() {
 
               {/* Image Counter */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-                {selectedImageIndex + 1} / {gallery.length}
+                {selectedGalleryImageIndex + 1} / {services[selectedServiceIndex].gallery.length}
               </div>
 
               {/* Horizontal Thumbnail Carousel */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                 <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                  {gallery.map((item, index) => (
+                  {services[selectedServiceIndex].gallery.map((galleryItem, index) => (
                     <button
                       key={index}
-                      onClick={() => setSelectedImageIndex(index)}
+                      onClick={() => setSelectedGalleryImageIndex(index)}
                       className={`flex-shrink-0 relative overflow-hidden rounded border-2 transition-all ${
-                        index === selectedImageIndex
+                        index === selectedGalleryImageIndex
                           ? 'border-primary scale-110'
                           : 'border-transparent hover:border-muted-foreground/30 opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img
-                        src={item.image}
-                        alt={item.title}
+                        src={galleryItem.image}
+                        alt={galleryItem.title}
                         className="w-20 h-20 object-cover"
                       />
                     </button>
@@ -574,70 +666,62 @@ export default function Home() {
                     {/* Main Content - Now includes both text and buttons that will scroll together */}
                     <div className="flex-1 min-w-0">
                       <h2 className="text-xl md:text-2xl font-bold mb-4">
-                        {gallery[selectedImageIndex].title}
+                        {services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.title || services[selectedServiceIndex].title}
                       </h2>
 
                       <p className="text-muted-foreground mb-6 leading-relaxed">
-                        {gallery[selectedImageIndex].description}
+                        {services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.description || services[selectedServiceIndex].description}
                       </p>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-start gap-3">
-                          <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                          <div>
-                            <h4 className="font-semibold">Duración</h4>
-                            <p className="text-sm text-muted-foreground">{gallery[selectedImageIndex].duration}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                          <div>
-                            <h4 className="font-semibold">Productos Utilizados</h4>
-                            <p className="text-sm text-muted-foreground">{gallery[selectedImageIndex].products}</p>
-                          </div>
+                      <div className="mb-6">
+                        <h4 className="font-semibold mb-3">Características del servicio</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {services[selectedServiceIndex].features.map((feature, idx) => (
+                            <Badge key={idx} variant="secondary">{feature}</Badge>
+                          ))}
                         </div>
                       </div>
 
                       {/* Additional Content for Scroll Testing */}
                       <div className="space-y-4 pt-6 border-t">
-                        <h3 className="text-lg font-semibold">Sobre este trabajo</h3>
+                        <h3 className="text-lg font-semibold">Sobre este servicio</h3>
                         <p className="text-muted-foreground leading-relaxed">
-                          Este maquillaje profesional representa la calidad y dedicación que ponemos en cada trabajo.
-                          Utilizamos técnicas avanzadas y productos de primera calidad para garantizar resultados
-                          excepcionales que duren todo el evento.
+                          Nuestro servicio de {services[selectedServiceIndex].title.toLowerCase()} está diseñado 
+                          para realzar tu belleza natural y adaptarse a la ocasión especial. Cada servicio incluye 
+                          una consulta personalizada para entender tus necesidades y preferencias específicas.
                         </p>
 
-                        <h3 className="text-lg font-semibold">Proceso de trabajo</h3>
+                        <h3 className="text-lg font-semibold">¿Qué puedes esperar?</h3>
                         <p className="text-muted-foreground leading-relaxed">
-                          Comenzamos con una consulta personalizada para entender tus necesidades y preferencias.
-                          Luego preparamos la piel con productos de alta calidad antes de aplicar el maquillaje
-                          con técnicas especializadas.
+                          Durante tu servicio, dedicamos tiempo a preparar tu piel con productos de alta calidad 
+                          antes de aplicar el maquillaje con técnicas especializadas. Utilizamos productos 
+                          profesionales que garantizan un acabado impecable y duradero.
                         </p>
 
-                        <h3 className="text-lg font-semibold">Mantenimiento y consejos</h3>
+                        <h3 className="text-lg font-semibold">Consejos post-servicio</h3>
                         <p className="text-muted-foreground leading-relaxed">
-                          Proporcionamos consejos personalizados para mantener el maquillaje impecable durante
-                          todo el evento, incluyendo recomendaciones de productos y técnicas de retoque rápido.
+                          Proporcionamos consejos personalizados para mantener tu look impecable durante 
+                          todo el evento, incluyendo recomendaciones de productos y técnicas de retoque rápido 
+                          si es necesario.
                         </p>
                       </div>
 
                       {/* Action Buttons - Now will scroll with the content on small screens */}
                       <div className="space-y-3 mt-6 lg:hidden"> {/* Hidden on large screens where they appear to the side */}
-                        <a href="https://wa.me/TU_NUMERO_TELEFONO" target="_blank" rel="noopener noreferrer">
+                        <a href="https://wa.me/34625253343" target="_blank" rel="noopener noreferrer">
                           <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-6">
                             <MessageCircle className="w-5 h-5 mr-2" />
-                            Consultar este look
+                            Consultar este servicio
                           </Button>
                         </a>
 
-                        <Button variant="outline" className="w-full py-6" onClick={() => setIsGalleryOpen(false)}>
-                          Ver más trabajos
+                        <Button variant="outline" className="w-full py-6" onClick={() => setIsServiceDetailsOpen(false)}>
+                          Ver otros servicios
                         </Button>
 
                         <div className="pt-4 border-t">
                           <p className="text-sm text-muted-foreground text-center">
-                            ¿Te gusta este estilo? Contáctanos para una consulta personalizada
+                            ¿Te gusta este servicio? Contáctanos para una consulta personalizada
                           </p>
                         </div>
                       </div>
@@ -646,20 +730,20 @@ export default function Home() {
                     {/* Action Buttons - Sidebar on large screens */}
                     <div className="lg:w-80 lg:flex-shrink-0 hidden lg:block">
                       <div className="space-y-3 sticky top-0">
-                        <a href="https://wa.me/TU_NUMERO_TELEFONO" target="_blank" rel="noopener noreferrer">
+                        <a href="https://wa.me/34625253343" target="_blank" rel="noopener noreferrer">
                           <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-6">
                             <MessageCircle className="w-5 h-5 mr-2" />
-                            Consultar este look
+                            Consultar este servicio
                           </Button>
                         </a>
 
-                        <Button variant="outline" className="w-full py-6" onClick={() => setIsGalleryOpen(false)}>
-                          Ver más trabajos
+                        <Button variant="outline" className="w-full py-6" onClick={() => setIsServiceDetailsOpen(false)}>
+                          Ver otros servicios
                         </Button>
 
                         <div className="pt-4 border-t">
                           <p className="text-sm text-muted-foreground text-center">
-                            ¿Te gusta este estilo? Contáctanos para una consulta personalizada
+                            ¿Te gusta este servicio? Contáctanos para una consulta personalizada
                           </p>
                         </div>
                       </div>
