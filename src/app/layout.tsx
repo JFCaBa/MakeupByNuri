@@ -13,6 +13,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { Metadata } from "next";
+
 export const metadata: Metadata = {
   title: "Maquillaje Profesional - Belleza Elegante",
   description: "Servicios profesionales de maquillaje para todo tipo de eventos. Experiencia demostrable, resultados duraderos y atención personalizada.",
@@ -28,6 +30,9 @@ export const metadata: Metadata = {
     title: "Maquillaje Profesional",
     description: "Servicios profesionales de maquillaje para todo tipo de eventos",
   },
+  icons: {
+    icon: '/favicon.svg', // This will be the path to your favicon during production
+  },
 };
 
 export default function RootLayout({
@@ -36,7 +41,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >

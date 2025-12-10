@@ -434,12 +434,6 @@ export default function Home() {
                       <Badge key={idx} variant="secondary">{feature}</Badge>
                     ))}
                   </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Consultar por WhatsApp
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -545,7 +539,10 @@ export default function Home() {
       <footer className="bg-foreground text-background py-12 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-6">
-            <h3 className="text-2xl font-bold mb-2">Maquillaje Profesional</h3>
+            <div className="flex items-center justify-center mb-2">
+              <img src="/logo.svg" alt="Maquillaje Profesional Logo" className="h-8 mr-2" />
+              <h3 className="text-2xl font-bold">Maquillaje Profesional</h3>
+            </div>
             <p className="text-sm opacity-80">Belleza que transforma</p>
           </div>
           
