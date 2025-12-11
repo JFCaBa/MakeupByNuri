@@ -12,6 +12,16 @@ const nextConfig: NextConfig = {
     // 构建时忽略ESLint错误
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/images/:path*',
+          destination: '/api/serve-image/:path*',
+        },
+      ],
+    };
+  },
 };
 
 export default nextConfig;

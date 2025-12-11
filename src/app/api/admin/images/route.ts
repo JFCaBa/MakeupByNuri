@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const imageFile = formData.get('image') as File | null;
     const category = formData.get('category') as string | null;
-    const type = formData.get('type') as string || 'gallery'; // gallery, hero, carousel
+    const type = formData.get('type') as string || 'gallery'; // gallery, hero
 
     if (!imageFile) {
       return NextResponse.json({ error: 'No image file provided' }, { status: 400 });
@@ -39,8 +39,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File is not an image' }, { status: 400 });
     }
 
-    // Define upload directory based on type
-    const uploadDir = path.join(process.cwd(), 'public', 'images', type);
+    // Sanitize category name for use as directory name
+    const sanitizeForPath = (str: string) => {
+      return str
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9]/g, '_') // Replace non-alphanumeric with underscores
+        .replace(/_+/g, '_') // Replace multiple underscores with single
+        .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+    };
+
+    // If it's a gallery image and category is specified, use category as the subdirectory
+    let uploadDir: string;
+    if (type === 'gallery' && category) {
+      const sanitizedCategory = sanitizeForPath(category);
+      uploadDir = path.join(process.cwd(), 'public', 'images', type, sanitizedCategory);
+    } else {
+      uploadDir = path.join(process.cwd(), 'public', 'images', type);
+    }
+
     await ensureDirExists(uploadDir);
 
     // Create unique filename
@@ -54,10 +71,15 @@ export async function POST(request: NextRequest) {
 
     await fs.writeFile(filePath, buffer);
 
+    // Ensure the imageUrl starts with a forward slash for proper Next.js public file serving
+    const imageUrl = type === 'gallery' && category
+      ? `/images/${type}/${sanitizeForPath(category)}/${fileName}`
+      : `/images/${type}/${fileName}`;
+
     return NextResponse.json({
       success: true,
       message: 'Image uploaded successfully',
-      imageUrl: `/images/${type}/${fileName}`,
+      imageUrl,
       fileName,
     });
   } catch (error: any) {
@@ -79,9 +101,29 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type') || 'gallery'; // gallery, hero, carousel
+    const type = searchParams.get('type') || 'gallery';
+    const category = searchParams.get('category'); // Optional category parameter
 
-    const imagesDir = path.join(process.cwd(), 'public', 'images', type);
+    // Sanitize category name for use as directory name
+    const sanitizeForPath = (str: string) => {
+      return str
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9]/g, '_') // Replace non-alphanumeric with underscores
+        .replace(/_+/g, '_') // Replace multiple underscores with single
+        .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+    };
+
+    let imagesDir: string;
+
+    if (type === 'gallery' && category) {
+      // If it's gallery type and category is specified, get images from the category folder
+      const sanitizedCategory = sanitizeForPath(category);
+      imagesDir = path.join(process.cwd(), 'public', 'images', type, sanitizedCategory);
+    } else {
+      // Otherwise get from the general type directory
+      imagesDir = path.join(process.cwd(), 'public', 'images', type);
+    }
 
     try {
       const files = await fs.readdir(imagesDir);
@@ -92,7 +134,7 @@ export async function GET(request: NextRequest) {
 
       const imagePaths = imageFiles.map(fileName => ({
         name: fileName,
-        url: `/images/${type}/${fileName}`,
+        url: type === 'gallery' && category ? `/images/${type}/${sanitizeForPath(category)}/${fileName}` : `/images/${type}/${fileName}`,
         size: 0, // Will need to get actual size if needed
         uploadDate: '', // Will need to get actual date if needed
       }));
@@ -123,12 +165,32 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const fileName = searchParams.get('fileName');
     const type = searchParams.get('type') || 'gallery';
+    const category = searchParams.get('category'); // Optional category parameter
 
     if (!fileName) {
       return NextResponse.json({ error: 'File name is required' }, { status: 400 });
     }
 
-    const filePath = path.join(process.cwd(), 'public', 'images', type, fileName);
+    // Sanitize category name for use as directory name
+    const sanitizeForPath = (str: string) => {
+      return str
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9]/g, '_') // Replace non-alphanumeric with underscores
+        .replace(/_+/g, '_') // Replace multiple underscores with single
+        .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+    };
+
+    let filePath: string;
+
+    if (type === 'gallery' && category) {
+      // If it's gallery type and category is specified, delete from the category folder
+      const sanitizedCategory = sanitizeForPath(category);
+      filePath = path.join(process.cwd(), 'public', 'images', type, sanitizedCategory, fileName);
+    } else {
+      // Otherwise delete from the general type directory
+      filePath = path.join(process.cwd(), 'public', 'images', type, fileName);
+    }
 
     // Verify the file exists before trying to delete
     try {

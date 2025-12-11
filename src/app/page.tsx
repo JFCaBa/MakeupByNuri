@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Star, Phone, Mail, MapPin, Calendar, Heart, Sparkles, Clock, Users, MessageCircle, Facebook, Instagram, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+
+// Default fallback data (will be used until API data is loaded)
+const DEFAULT_SERVICES: any[] = [];
+const DEFAULT_GALLERY: any[] = [];
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -21,6 +25,10 @@ export default function Home() {
   const [isServiceDetailsOpen, setIsServiceDetailsOpen] = useState(false);
   const [selectedServiceIndex, setSelectedServiceIndex] = useState(0);
   const [selectedGalleryImageIndex, setSelectedGalleryImageIndex] = useState(0);
+  const [services, setServices] = useState<any[]>(DEFAULT_SERVICES);
+  const [gallery, setGallery] = useState<any[]>(DEFAULT_GALLERY);
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -71,20 +79,107 @@ export default function Home() {
 
   const navigateServiceGallery = (direction: 'prev' | 'next') => {
     const currentService = services[selectedServiceIndex];
-    if (!currentService.gallery) return; // If no gallery, do nothing
+    if (!currentService || !currentService.gallery || currentService.gallery.length === 0) return; // If no gallery, do nothing
 
     if (direction === 'prev') {
-      setSelectedGalleryImageIndex((prev) => 
+      setSelectedGalleryImageIndex((prev) =>
         prev === 0 ? currentService.gallery.length - 1 : prev - 1
       );
     } else {
-      setSelectedGalleryImageIndex((prev) => 
+      setSelectedGalleryImageIndex((prev) =>
         prev === currentService.gallery.length - 1 ? 0 : prev + 1
       );
     }
   };
 
-  const services = [
+  // Fetch categories and gallery images from API
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch categories
+        const categoriesRes = await fetch('/api/categories');
+        const categoriesData = await categoriesRes.json();
+
+        // Fetch hero image
+        const heroRes = await fetch('/api/images?type=hero');
+        const heroData = await heroRes.json();
+
+        // Set the hero image URL
+        if (heroData.images && heroData.images.length > 0) {
+          setHeroImageUrl(heroData.images[0].url);
+        }
+
+        // Sanitize category name for use in URL/path
+        const sanitizeCategory = (str: string) => {
+          return str
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+            .replace(/[^a-z0-9]/g, '_') // Replace non-alphanumeric with underscores
+            .replace(/_+/g, '_') // Replace multiple underscores with single
+            .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+        };
+
+        // Create an array of promises to fetch images for each category
+        const categoryImagePromises = categoriesData.categories.map((category: any) =>
+          fetch(`/api/images?type=gallery&category=${encodeURIComponent(sanitizeCategory(category.name))}`).then(res => res.json())
+        );
+
+        // Wait for all image fetches to complete
+        const categoryImageData = await Promise.all(categoryImagePromises);
+
+        // Map categories to services format
+        if (categoriesData.categories && categoriesData.categories.length > 0) {
+          const mappedServices = categoriesData.categories.map((category: any, index: number) => ({
+            title: category.name,
+            description: `Servicios de ${category.name.toLowerCase()}`,
+            image: categoryImageData[index]?.images[0]?.url || "/images/services/service-1.jpg",
+            features: ["Profesional", "Personalizado", "De calidad"],
+            gallery: categoryImageData[index]?.images
+              .slice(0, 3)
+              .map((img: any) => ({
+                image: img.url,
+                title: `${category.name}`,
+                description: `Trabajo de ${category.name.toLowerCase()}`
+              }))
+          }));
+          setServices(mappedServices);
+        } else {
+          // Fallback to default services
+          setServices(defaultServices);
+        }
+
+        // For the main gallery, collect all images from all categories
+        const allImages = categoryImageData.flatMap(data => data.images).filter(Boolean);
+
+        if (allImages && allImages.length > 0) {
+          const mappedGallery = allImages.map((img: any) => ({
+            image: img.url,
+            title: img.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
+            description: "Trabajo profesional de maquillaje",
+            duration: "1-2 horas",
+            products: "Productos profesionales de alta calidad"
+          }));
+          setGallery(mappedGallery);
+        } else {
+          // Fallback to default gallery
+          setGallery(defaultGallery);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Use fallback data on error
+        setServices(defaultServices);
+        setGallery(defaultGallery);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Default fallback data
+  const defaultServices = [
     {
       title: "Maquillaje de día",
       description: "Look natural y luminoso ideal para eventos diurnos con acabados frescos y de larga duración (35 €)",
@@ -225,9 +320,9 @@ export default function Home() {
     }
   ];
 
-  const gallery = [
-    { 
-      image: "/images/gallery/gallery-1.jpg", 
+  const defaultGallery = [
+    {
+      image: "/images/gallery/gallery-1.jpg",
       title: "Fallera",
       description: "Maquillaje tradicional para la festividad de las Fallas, con colores vivos y detalles que realzan la belleza del traje.",
       duration: "2 horas",
@@ -293,8 +388,8 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/images/hero/hero-1.jpg" 
+          <img
+            src={heroImageUrl || "/images/hero/hero-1.jpg"}
             alt="Maquillaje Profesional"
             className="w-full h-full object-cover"
           />
@@ -588,14 +683,15 @@ export default function Home() {
               Información detallada sobre el servicio de maquillaje seleccionado
             </DialogDescription>
           </VisuallyHidden>
+          {services[selectedServiceIndex] && (
           <div className="flex flex-col h-[95vh] min-h-[500px]">
             {/* Top Carousel Section */}
             <div className="relative bg-black h-2/5 flex-shrink-0">
               {/* Main Image */}
               <div className="w-full h-full flex items-center justify-center p-4">
                 <img
-                  src={services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.image || services[selectedServiceIndex].image}
-                  alt={services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.title || services[selectedServiceIndex].title}
+                  src={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.image || services[selectedServiceIndex]?.image || ''}
+                  alt={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.title || services[selectedServiceIndex]?.title || ''}
                   className="max-w-full max-h-full object-contain"
                 />
               </div>
@@ -628,13 +724,13 @@ export default function Home() {
 
               {/* Image Counter */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-                {selectedGalleryImageIndex + 1} / {services[selectedServiceIndex].gallery.length}
+                {selectedGalleryImageIndex + 1} / {services[selectedServiceIndex]?.gallery?.length || 0}
               </div>
 
               {/* Horizontal Thumbnail Carousel */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                 <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                  {services[selectedServiceIndex].gallery.map((galleryItem, index) => (
+                  {services[selectedServiceIndex]?.gallery?.map((galleryItem, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedGalleryImageIndex(index)}
@@ -663,11 +759,11 @@ export default function Home() {
                     {/* Main Content - Now includes both text and buttons that will scroll together */}
                     <div className="flex-1 min-w-0">
                       <h2 className="text-xl md:text-2xl font-bold mb-4">
-                        {services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.title || services[selectedServiceIndex].title}
+                        {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.title || services[selectedServiceIndex]?.title || ''}
                       </h2>
 
                       <p className="text-muted-foreground mb-6 leading-relaxed">
-                        {services[selectedServiceIndex].gallery[selectedGalleryImageIndex]?.description || services[selectedServiceIndex].description}
+                        {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.description || services[selectedServiceIndex]?.description || ''}
                       </p>
 
                       <div className="mb-6">
@@ -750,6 +846,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

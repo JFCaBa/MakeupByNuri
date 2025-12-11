@@ -8,7 +8,15 @@ const AdminDashboard = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('gallery');
   const [images, setImages] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('Maquillaje de día');
+  const [categories, setCategories] = useState([
+    'Maquillaje de día',
+    'Maquillaje de noche',
+    'Novia',
+    'Invitadas',
+    'Fallera',
+    'Maquillaje artístico'
+  ]);
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -16,29 +24,24 @@ const AdminDashboard = () => {
   // Load data when component mounts and when activeTab changes
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, selectedCategory]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'gallery' || activeTab === 'carousel' || activeTab === 'hero') {
-        // Fetch images based on current tab
-        const type = activeTab;
-        const res = await fetch(`/api/admin/images?type=${type}`);
+      if (activeTab === 'gallery') {
+        // Fetch images for the selected category
+        const res = await fetch(`/api/admin/images?category=${encodeURIComponent(selectedCategory)}`);
         if (res.ok) {
           const data = await res.json();
-          if (activeTab === 'hero') {
-            setHeroImage(data.images.length > 0 ? data.images[0]?.url : null);
-          } else {
-            setImages(data.images || []);
-          }
+          setImages(data.images || []);
         }
-      } else if (activeTab === 'categories') {
-        // Fetch categories
-        const res = await fetch('/api/admin/categories');
+      } else if (activeTab === 'hero') {
+        // Fetch hero image
+        const res = await fetch('/api/admin/images?type=hero');
         if (res.ok) {
           const data = await res.json();
-          setCategories(data.categories || []);
+          setHeroImage(data.images.length > 0 ? data.images[0]?.url : null);
         }
       }
     } catch (error) {
@@ -60,14 +63,13 @@ const AdminDashboard = () => {
     router.push('/admin/login');
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: string, category?: string) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('type', type);
-    if (category) formData.append('category', category);
+    formData.append('category', selectedCategory);
 
     try {
       const res = await fetch('/api/admin/images', {
@@ -91,28 +93,28 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleImageDelete = async (fileName: string, type: string) => {
-    if (!confirm('Are you sure you want to delete this image?')) {
+  const handleImageDelete = async (fileName: string, category: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/admin/images?fileName=${encodeURIComponent(fileName)}&type=${type}`, {
+      const res = await fetch(`/api/admin/images?fileName=${encodeURIComponent(fileName)}&category=${encodeURIComponent(category)}`, {
         method: 'DELETE',
       });
 
       if (res.ok) {
-        showNotification('Image deleted successfully', 'success');
+        showNotification('Imagen eliminada correctamente', 'success');
 
         // Refresh the images list
         fetchData();
       } else {
         const error = await res.json();
-        showNotification(error.error || 'Failed to delete image', 'error');
+        showNotification(error.error || 'Error al eliminar la imagen', 'error');
       }
     } catch (error) {
       console.error('Error deleting image:', error);
-      showNotification('Error deleting image', 'error');
+      showNotification('Error al eliminar la imagen', 'error');
     }
   };
 
@@ -200,7 +202,7 @@ const AdminDashboard = () => {
       {/* Navigation Tabs */}
       <nav className="border-b border-border bg-muted/30 p-4">
         <div className="flex space-x-4">
-          {['gallery', 'categories', 'hero', 'carousel'].map((tab) => (
+          {['gallery', 'hero'].map((tab) => (
             <button
               key={tab}
               className={`px-4 py-2 rounded-md capitalize ${
@@ -210,7 +212,7 @@ const AdminDashboard = () => {
               }`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab}
+              {tab === 'gallery' ? 'Galería' : tab}
             </button>
           ))}
         </div>
@@ -231,21 +233,32 @@ const AdminDashboard = () => {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold">Gallery Images</h2>
-                  <label className="bg-primary text-primary-foreground px-4 py-2 rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                    Upload New Image
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, 'gallery')}
-                    />
-                  </label>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h2 className="text-2xl font-semibold">Galería de Imágenes</h2>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      {categories.map((category) => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
+                    </select>
+                    <label className="bg-primary text-primary-foreground px-4 py-2 rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
+                      Subir Imagen
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 {images.length === 0 ? (
-                  <p className="text-center py-8 text-muted-foreground">No gallery images found</p>
+                  <p className="text-center py-8 text-muted-foreground">No hay imágenes para esta categoría</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {images.map((image, index) => (
@@ -260,9 +273,9 @@ const AdminDashboard = () => {
                           <div className="mt-3 flex space-x-2">
                             <button
                               className="text-destructive hover:underline text-sm"
-                              onClick={() => handleImageDelete(image.name, 'gallery')}
+                              onClick={() => handleImageDelete(image.name, selectedCategory)}
                             >
-                              Delete
+                              Eliminar
                             </button>
                           </div>
                         </div>
@@ -273,124 +286,6 @@ const AdminDashboard = () => {
               </motion.div>
             )}
 
-            {activeTab === 'categories' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold">Categories</h2>
-                  <button
-                    className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-                    onClick={async () => {
-                      const newName = prompt('Enter new category name:');
-                      if (newName) {
-                        try {
-                          const res = await fetch('/api/admin/categories', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ name: newName }),
-                          });
-
-                          if (res.ok) {
-                            const data = await res.json();
-                            showNotification('Category added successfully', 'success');
-                            fetchData(); // Refresh the list
-                          } else {
-                            const error = await res.json();
-                            showNotification(error.error || 'Failed to add category', 'error');
-                          }
-                        } catch (error) {
-                          console.error('Error adding category:', error);
-                          showNotification('Error adding category', 'error');
-                        }
-                      }
-                    }}
-                  >
-                    Add Category
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border">
-                    <thead>
-                      <tr className="bg-muted">
-                        <th className="border p-3 text-left">Name</th>
-                        <th className="border p-3 text-left">Image Count</th>
-                        <th className="border p-3 text-left">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {categories.map((category) => (
-                        <tr key={category.id}>
-                          <td className="border p-3">{category.name}</td>
-                          <td className="border p-3">{category.imageCount || 0}</td>
-                          <td className="border p-3">
-                            <button
-                              className="text-destructive hover:underline mr-3"
-                              onClick={async () => {
-                                if (confirm('Are you sure you want to delete this category?')) {
-                                  try {
-                                    const res = await fetch(`/api/admin/categories?id=${category.id}`, {
-                                      method: 'DELETE',
-                                    });
-
-                                    if (res.ok) {
-                                      showNotification('Category deleted successfully', 'success');
-                                      fetchData(); // Refresh the list
-                                    } else {
-                                      const error = await res.json();
-                                      showNotification(error.error || 'Failed to delete category', 'error');
-                                    }
-                                  } catch (error) {
-                                    console.error('Error deleting category:', error);
-                                    showNotification('Error deleting category', 'error');
-                                  }
-                                }
-                              }}
-                            >
-                              Delete
-                            </button>
-                            <button
-                              className="text-blue-500 hover:underline"
-                              onClick={async () => {
-                                const newName = prompt('Enter new category name:', category.name);
-                                if (newName && newName !== category.name) {
-                                  try {
-                                    const res = await fetch('/api/admin/categories', {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ id: category.id, name: newName }),
-                                    });
-
-                                    if (res.ok) {
-                                      const data = await res.json();
-                                      showNotification('Category updated successfully', 'success');
-                                      fetchData(); // Refresh the list
-                                    } else {
-                                      const error = await res.json();
-                                      showNotification(error.error || 'Failed to update category', 'error');
-                                    }
-                                  } catch (error) {
-                                    console.error('Error updating category:', error);
-                                    showNotification('Error updating category', 'error');
-                                  }
-                                }
-                              }}
-                            >
-                              Edit
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-            )}
-
             {activeTab === 'hero' && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -398,25 +293,25 @@ const AdminDashboard = () => {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <h2 className="text-2xl font-semibold">Hero Section</h2>
+                <h2 className="text-2xl font-semibold">Imagen de Portada</h2>
 
                 <div className="border rounded-lg p-6 max-w-2xl">
                   {heroImage ? (
                     <div className="mb-6">
-                      <h3 className="text-lg font-medium mb-3">Current Hero Image</h3>
+                      <h3 className="text-lg font-medium mb-3">Imagen Actual</h3>
                       <img
                         src={heroImage}
-                        alt="Current Hero"
+                        alt="Imagen de Portada Actual"
                         className="w-full h-64 object-cover rounded-md"
                       />
                     </div>
                   ) : (
-                    <p className="text-muted-foreground mb-6">No hero image set</p>
+                    <p className="text-muted-foreground mb-6">No hay imagen de portada establecida</p>
                   )}
 
                   <div className="space-y-4">
                     <label className="block">
-                      <span className="block mb-2 font-medium">New Hero Image</span>
+                      <span className="block mb-2 font-medium">Nueva Imagen de Portada</span>
                       <input
                         type="file"
                         className="block w-full"
@@ -431,61 +326,12 @@ const AdminDashboard = () => {
                           className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md hover:bg-destructive/90 transition-colors"
                           onClick={handleHeroImageRemove}
                         >
-                          Remove Image
+                          Eliminar Imagen
                         </button>
                       )}
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'carousel' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold">Carousel Images</h2>
-                  <label className="bg-primary text-primary-foreground px-4 py-2 rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                    Add Carousel Image
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e, 'carousel')}
-                    />
-                  </label>
-                </div>
-
-                {images.length === 0 ? (
-                  <p className="text-center py-8 text-muted-foreground">No carousel images found</p>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {images.map((image, index) => (
-                      <div key={index} className="border rounded-lg overflow-hidden shadow-sm">
-                        <img
-                          src={image.url}
-                          alt={`Carousel ${index}`}
-                          className="w-full h-48 object-cover"
-                        />
-                        <div className="p-4">
-                          <div className="flex justify-between">
-                            <span className="text-sm text-muted-foreground truncate">{image.name}</span>
-                            <button
-                              className="text-destructive hover:underline text-sm"
-                              onClick={() => handleImageDelete(image.name, 'carousel')}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </motion.div>
             )}
           </>
