@@ -16,18 +16,41 @@ const geistMono = Geist_Mono({
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Maquillaje Profesional - Belleza Elegante",
+  title: "Maquillaje Valencia",
   description: "Servicios profesionales de maquillaje para todo tipo de eventos. Experiencia demostrable, resultados duraderos y atención personalizada.",
-  keywords: ["maquillaje", "belleza", "maquilladora profesional", "eventos", "bodas", "fiestas"],
-  authors: [{ name: "Maquillaje Profesional" }],
+  keywords: [
+    'maquillaje Valencia',
+    'maquillaje Massanassa',
+    'maquillaje Catarroja',
+    'maquillaje novia',
+    'maquillaje fiesta',
+    'maquillaje artístico',
+    'maquillaje profesional',
+    'maquillaje evento',
+    'maquillaje día',
+    'maquillaje noche',
+    'maquillaje fallera',
+    'maquillaje invitadas',
+    'servicio maquillaje',
+    'maquilladora profesional',
+    'maquillaje duradero',
+    'maquillaje bodas',
+    'maquillaje comunión',
+    'maquillaje eventos especiales',
+    'maquillaje personalizado',
+    'productos maquillaje calidad'
+  ],
+  authors: [{ name: "Makeup By Nuri" }],
   openGraph: {
-    title: "Maquillaje Profesional - Belleza Elegante",
-    description: "Servicios profesionales de maquillaje para todo tipo de eventos. Experiencia demostrable y atención personalizada.",
+    title: "Maquillaje Profesional en Valencia, Massanassa y Catarroja - MakeupByNuri",
+    description: "Servicios profesionales de maquillaje para todo tipo de eventos. Experiencia demostrable, resultados duraderos y atención personalizada.",
     type: "website",
+    locale: "es_ES",
+    siteName: "Maquillaje Profesional - MakeupByNuri",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Maquillaje Profesional",
+    title: "Maquillaje Profesional en Valencia, Massanassa y Catarroja",
     description: "Servicios profesionales de maquillaje para todo tipo de eventos",
   },
   icons: {
