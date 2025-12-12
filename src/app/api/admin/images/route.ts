@@ -60,6 +60,26 @@ export async function POST(request: NextRequest) {
 
     await ensureDirExists(uploadDir);
 
+    // If uploading a hero image, delete existing hero images first (only one hero image allowed)
+    if (type === 'hero') {
+      try {
+        const existingFiles = await fs.readdir(uploadDir);
+        const imageFiles = existingFiles.filter(file => {
+          const ext = path.extname(file).toLowerCase();
+          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+        });
+
+        // Delete all existing hero images
+        for (const file of imageFiles) {
+          const filePath = path.join(uploadDir, file);
+          await fs.unlink(filePath);
+        }
+      } catch (error) {
+        // If directory doesn't exist or other error, continue with upload
+        console.log('No existing hero images to delete or error:', error);
+      }
+    }
+
     // Create unique filename
     const timestamp = Date.now();
     const fileExtension = path.extname(imageFile.name) || '.jpg'; // Default to .jpg if no extension
@@ -132,12 +152,26 @@ export async function GET(request: NextRequest) {
         return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
       });
 
-      const imagePaths = imageFiles.map(fileName => ({
-        name: fileName,
-        url: type === 'gallery' && category ? `/images/${type}/${sanitizeForPath(category)}/${fileName}` : `/images/${type}/${fileName}`,
-        size: 0, // Will need to get actual size if needed
-        uploadDate: '', // Will need to get actual date if needed
-      }));
+      // Get file stats and sort by modification time (newest first)
+      const filesWithStats = await Promise.all(
+        imageFiles.map(async (fileName) => {
+          const filePath = path.join(imagesDir, fileName);
+          const stats = await fs.stat(filePath);
+          return {
+            name: fileName,
+            url: type === 'gallery' && category ? `/images/${type}/${sanitizeForPath(category)}/${fileName}` : `/images/${type}/${fileName}`,
+            size: stats.size,
+            uploadDate: stats.mtime.toISOString(),
+            mtime: stats.mtime.getTime(),
+          };
+        })
+      );
+
+      // Sort by modification time, newest first
+      const sortedImages = filesWithStats.sort((a, b) => b.mtime - a.mtime);
+
+      // Remove mtime from response
+      const imagePaths = sortedImages.map(({ mtime, ...rest }) => rest);
 
       return NextResponse.json({ images: imagePaths });
     } catch (error) {

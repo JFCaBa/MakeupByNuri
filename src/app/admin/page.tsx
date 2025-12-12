@@ -41,7 +41,9 @@ const AdminDashboard = () => {
         const res = await fetch('/api/admin/images?type=hero');
         if (res.ok) {
           const data = await res.json();
-          setHeroImage(data.images.length > 0 ? data.images[0]?.url : null);
+          const heroUrl = data.images.length > 0 ? data.images[0]?.url : null;
+          // Add cache-busting parameter to ensure we always get the latest
+          setHeroImage(heroUrl ? `${heroUrl}?t=${Date.now()}` : null);
         }
       }
     } catch (error) {
@@ -135,7 +137,8 @@ const AdminDashboard = () => {
       if (res.ok) {
         const data = await res.json();
         showNotification('Hero image updated successfully', 'success');
-        setHeroImage(data.imageUrl);
+        // Add cache-busting parameter to force browser to fetch new image
+        setHeroImage(`${data.imageUrl}?t=${Date.now()}`);
       } else {
         const error = await res.json();
         showNotification(error.error || 'Failed to update hero image', 'error');

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Star, Phone, Mail, MapPin, Calendar, Heart, Sparkles, Clock, Users, MessageCircle, Facebook, Instagram, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import ZoomModal from '@/components/ZoomModal';
 
 // Default fallback data (will be used until API data is loaded)
 const DEFAULT_SERVICES: any[] = [];
@@ -28,7 +29,9 @@ export default function Home() {
   const [services, setServices] = useState<any[]>(DEFAULT_SERVICES);
   const [gallery, setGallery] = useState<any[]>(DEFAULT_GALLERY);
   const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null);
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -108,6 +111,9 @@ export default function Home() {
         // Set the hero image URL
         if (heroData.images && heroData.images.length > 0) {
           setHeroImageUrl(heroData.images[0].url);
+          setHeroImageLoaded(true);
+        } else {
+          setHeroImageLoaded(true); // So we know there's no custom hero image
         }
 
         // Sanitize category name for use in URL/path
@@ -388,11 +394,26 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
-            src={heroImageUrl || "/images/hero/hero-1.jpg"}
-            alt="Maquillaje Profesional"
-            className="w-full h-full object-cover"
-          />
+          {heroImageLoaded && (
+            <img
+              src={heroImageUrl || "/images/hero/hero-1.jpg"}
+              alt="Maquillaje Profesional"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // In case the custom image fails to load, use the fallback
+                // But only after we've attempted to load the custom image
+                if (heroImageUrl && heroImageUrl !== "/images/hero/hero-1.jpg") {
+                  setHeroImageUrl("/images/hero/hero-1.jpg");
+                }
+              }}
+              key={heroImageUrl || "/images/hero/hero-1.jpg"} // This forces remount when URL changes
+            />
+          )}
+          {!heroImageLoaded && (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <div className="animate-pulse text-gray-500">Cargando imagen...</div>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60"></div>
         </div>
         
@@ -687,13 +708,22 @@ export default function Home() {
           <div className="flex flex-col h-[95vh] min-h-[500px]">
             {/* Top Carousel Section */}
             <div className="relative bg-black h-2/5 flex-shrink-0">
-              {/* Main Image */}
-              <div className="w-full h-full flex items-center justify-center p-4">
+              {/* Main Image with Zoom Button */}
+              <div className="w-full h-full flex items-center justify-center p-4 relative">
                 <img
                   src={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.image || services[selectedServiceIndex]?.image || ''}
                   alt={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.title || services[selectedServiceIndex]?.title || ''}
-                  className="max-w-full max-h-full object-contain"
+                  className="w-full h-full object-contain cursor-pointer"
+                  onClick={() => setIsZoomModalOpen(true)}
                 />
+                <Button
+                  onClick={() => setIsZoomModalOpen(true)}
+                  className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 z-10"
+                  size="icon"
+                  aria-label="Ampliar imagen"
+                >
+                  <ZoomIn className="w-6 h-6" />
+                </Button>
               </div>
 
               {/* Navigation Arrows */}
@@ -849,6 +879,14 @@ export default function Home() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Zoom Modal */}
+      <ZoomModal
+        isOpen={isZoomModalOpen}
+        onClose={() => setIsZoomModalOpen(false)}
+        src={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.image || services[selectedServiceIndex]?.image || ''}
+        alt={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.title || services[selectedServiceIndex]?.title || ''}
+      />
     </div>
   );
 }

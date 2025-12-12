@@ -43,11 +43,13 @@ export async function GET(
     const contentType = contentTypeMap[ext] || 'application/octet-stream';
 
     // Return the image with appropriate headers
+    // Use moderate caching - 1 hour for browser, but allow revalidation
     return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Cache-Control': 'public, max-age=3600, must-revalidate',
+        'ETag': `"${Date.now()}"`,
       },
     });
   } catch (error) {
