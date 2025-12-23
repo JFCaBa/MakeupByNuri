@@ -30,3 +30,12 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model ServiceContent {
+  id                String   @id @default(cuid())
+  title             String   @unique // The service name like "Novia", "Maquillaje de día", etc.
+  description       String   // The main card description
+  detailedDescription String? // The detailed description for the popup
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

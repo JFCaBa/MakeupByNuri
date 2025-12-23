@@ -1,14 +1,11 @@
 #!/bin/bash
 
-# Script to stop container, rebuild image, and run container again
+# Script to stop, rebuild, and restart containers using docker compose
 
-echo "Stopping and removing container..."
-docker stop makeupbynuri-app && docker rm makeupbynuri-app
+echo "Stopping and removing containers..."
+docker compose down
 
-echo "Building new image..."
-docker build -t makeupbynuri .
+echo "Building and starting containers..."
+docker compose up -d --build
 
-echo "Starting container..."
-docker run -d --name makeupbynuri-app -p 3003:3000 makeupbynuri
-
-echo "Container restarted successfully!"
+echo "Containers restarted successfully!"

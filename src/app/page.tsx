@@ -134,21 +134,45 @@ export default function Home() {
         // Wait for all image fetches to complete
         const categoryImageData = await Promise.all(categoryImagePromises);
 
+        // First, fetch custom service content from the API if available
+        let serviceContentMap: Record<string, any> = {};
+        try {
+          const contentRes = await fetch('/api/service-content'); // Assuming we'll create this endpoint
+          if (contentRes.ok) {
+            const contentData = await contentRes.json();
+            serviceContentMap = contentData.serviceContents.reduce((acc: Record<string, any>, item: any) => {
+              acc[item.title] = item;
+              return acc;
+            }, {});
+          }
+        } catch (error) {
+          console.error('Error fetching service content:', error);
+          // Continue with default behavior if content fetch fails
+        }
+
         // Map categories to services format
         if (categoriesData.categories && categoriesData.categories.length > 0) {
-          const mappedServices = categoriesData.categories.map((category: any, index: number) => ({
-            title: category.name,
-            description: `Servicios de ${category.name.toLowerCase()}`,
-            image: categoryImageData[index]?.images[0]?.url || "/images/services/service-1.jpg",
-            features: ["Profesional", "Personalizado", "De calidad"],
-            gallery: categoryImageData[index]?.images
-              .slice(0, 3)
-              .map((img: any) => ({
-                image: img.url,
-                title: `${category.name}`,
-                description: `Trabajo de ${category.name.toLowerCase()}`
-              }))
-          }));
+          const mappedServices = categoriesData.categories.map((category: any, index: number) => {
+            // Get custom content if available, otherwise use defaults
+            const customContent = serviceContentMap[category.name];
+            const cardDescription = customContent?.description || `Servicios de ${category.name.toLowerCase()}`;
+            const detailedDescription = customContent?.detailedDescription || cardDescription;
+
+            return {
+              title: category.name,
+              description: cardDescription,
+              image: categoryImageData[index]?.images[0]?.url || "/images/services/service-1.jpg",
+              features: ["Profesional", "Personalizado", "De calidad"],
+              gallery: categoryImageData[index]?.images
+                .slice(0, 3)
+                .map((img: any) => ({
+                  image: img.url,
+                  title: `${category.name}`,
+                  description: `Trabajo de ${category.name.toLowerCase()}`
+                })),
+              detailedDescription: detailedDescription // Add the detailed description for use in the popup
+            };
+          });
           setServices(mappedServices);
         } else {
           // Fallback to default services
@@ -192,22 +216,23 @@ export default function Home() {
       image: "/images/services/service-1.jpg",
       features: ["Duradero", "Personalizado", "Fresco"],
       gallery: [
-        { 
-          image: "/images/gallery/gallery-1.jpg", 
+        {
+          image: "/images/gallery/gallery-1.jpg",
           title: "Maquillaje de día - Ejemplo 1",
           description: "Look natural y luminoso ideal para eventos diurnos con acabados frescos y de larga duración."
         },
-        { 
-          image: "/images/gallery/gallery-2.jpg", 
+        {
+          image: "/images/gallery/gallery-2.jpg",
           title: "Maquillaje de día - Ejemplo 2",
           description: "Día luminoso con colores suaves y acabado natural."
         },
-        { 
-          image: "/images/gallery/gallery-3.jpg", 
+        {
+          image: "/images/gallery/gallery-3.jpg",
           title: "Maquillaje de día - Ejemplo 3",
           description: "Look diurno con toques sutiles y acabado mate duradero."
         }
-      ]
+      ],
+      detailedDescription: null
     },
     {
       title: "Maquillaje de noche",
@@ -215,22 +240,23 @@ export default function Home() {
       image: "/images/services/service-1.jpg",
       features: ["Efectos especiales", "Fotogénico", "Duradero"],
       gallery: [
-        { 
-          image: "/images/gallery/gallery-4.jpg", 
+        {
+          image: "/images/gallery/gallery-4.jpg",
           title: "Maquillaje de noche - Ejemplo 1",
           description: "Look intenso y llamativo para eventos nocturnos con iluminación dramática."
         },
-        { 
-          image: "/images/gallery/gallery-5.jpg", 
+        {
+          image: "/images/gallery/gallery-5.jpg",
           title: "Maquillaje de noche - Ejemplo 2",
           description: "Noche elegante con colores metalizados y acabado luminoso."
         },
-        { 
-          image: "/images/gallery/gallery-6.jpg", 
+        {
+          image: "/images/gallery/gallery-6.jpg",
           title: "Maquillaje de noche - Ejemplo 3",
           description: "Diseño nocturno con tonos profundos y contorneado definido."
         }
-      ]
+      ],
+      detailedDescription: null
     },
     {
       title: "Novia",
@@ -238,22 +264,23 @@ export default function Home() {
       image: "/images/services/service-1.jpg",
       features: ["Prueba incluida", "Resistente al agua", "Fotogénico"],
       gallery: [
-        { 
-          image: "/images/gallery/gallery-1.jpg", 
+        {
+          image: "/images/gallery/gallery-1.jpg",
           title: "Maquillaje de Novia - Ejemplo 1",
-          description: "El día más especial merece un maquillaje impecable, duradero y fotogénico."
+          description: "¿Qué puedes esperar?\\nTrabajamos con una preparación minuciosa de la piel y técnicas especializadas que garantizan un maquillaje luminoso, natural y de larga duración. Utilizamos productos profesionales de alta calidad, pensados para resistir emociones, lágrimas y largas horas.\\n\\nDurante la prueba ajustamos tonos, acabados y estilo hasta que te sientas completamente cómoda y segura con tu maquillaje."
         },
-        { 
-          image: "/images/gallery/gallery-2.jpg", 
+        {
+          image: "/images/gallery/gallery-2.jpg",
           title: "Maquillaje de Novia - Ejemplo 2",
-          description: "Look nupcial elegante con acabado fotogénico y duradero todo el día."
+          description: "Consejos post-servicio\\nTe proporcionamos recomendaciones personalizadas para mantener tu maquillaje impecable durante toda la celebración, así como consejos de retoque si fuese necesario."
         },
-        { 
-          image: "/images/gallery/gallery-3.jpg", 
+        {
+          image: "/images/gallery/gallery-3.jpg",
           title: "Maquillaje de Novia - Ejemplo 3",
           description: "Maquillaje de novia natural que resalta la belleza sin opacar el vestido."
         }
-      ]
+      ],
+      detailedDescription: null
     },
     {
       title: "Invitadas",
@@ -261,22 +288,23 @@ export default function Home() {
       image: "/images/services/service-1.jpg",
       features: ["Elegante", "Personalizado", "Duradero"],
       gallery: [
-        { 
-          image: "/images/gallery/gallery-4.jpg", 
+        {
+          image: "/images/gallery/gallery-4.jpg",
           title: "Maquillaje para Invitadas - Ejemplo 1",
           description: "Look elegante y personalizado para destacar en cualquier evento especial."
         },
-        { 
-          image: "/images/gallery/gallery-5.jpg", 
+        {
+          image: "/images/gallery/gallery-5.jpg",
           title: "Maquillaje para Invitadas - Ejemplo 2",
           description: "Perfecto para eventos como bodas, comuniones o fiestas especiales."
         },
-        { 
-          image: "/images/gallery/gallery-6.jpg", 
+        {
+          image: "/images/gallery/gallery-6.jpg",
           title: "Maquillaje para Invitadas - Ejemplo 3",
           description: "Diseño versátil que resalta la belleza natural de la invitada."
         }
-      ]
+      ],
+      detailedDescription: null
     },
     {
       title: "Fallera",
@@ -284,22 +312,23 @@ export default function Home() {
       image: "/images/services/service-1.jpg",
       features: ["Tradicional", "Colores vivos", "Detallado"],
       gallery: [
-        { 
-          image: "/images/gallery/gallery-1.jpg", 
+        {
+          image: "/images/gallery/gallery-1.jpg",
           title: "Maquillaje Fallera - Ejemplo 1",
           description: "Maquillaje tradicional para la festividad de las Fallas, con colores vivos."
         },
-        { 
-          image: "/images/gallery/gallery-2.jpg", 
+        {
+          image: "/images/gallery/gallery-2.jpg",
           title: "Maquillaje Fallera - Ejemplo 2",
           description: "Detalles que realzan la belleza del traje con colores tradicionales."
         },
-        { 
-          image: "/images/gallery/gallery-3.jpg", 
+        {
+          image: "/images/gallery/gallery-3.jpg",
           title: "Maquillaje Fallera - Ejemplo 3",
           description: "Look tradicional con acabados que complementan el vestuario fallero."
         }
-      ]
+      ],
+      detailedDescription: null
     },
     {
       title: "Maquillaje artístico",
@@ -307,22 +336,23 @@ export default function Home() {
       image: "/images/services/service-1.jpg",
       features: ["Creativo", "Personalizado", "Profesional"],
       gallery: [
-        { 
-          image: "/images/gallery/gallery-4.jpg", 
+        {
+          image: "/images/gallery/gallery-4.jpg",
           title: "Maquillaje Artístico - Ejemplo 1",
           description: "Diseños creativos y personalizados para ocasiones únicas."
         },
-        { 
-          image: "/images/gallery/gallery-5.jpg", 
+        {
+          image: "/images/gallery/gallery-5.jpg",
           title: "Maquillaje Artístico - Ejemplo 2",
           description: "Incluyendo efectos especiales y caracterizaciones detalladas."
         },
-        { 
-          image: "/images/gallery/gallery-6.jpg", 
+        {
+          image: "/images/gallery/gallery-6.jpg",
           title: "Maquillaje Artístico - Ejemplo 3",
           description: "Caracterizaciones profesionales para producciones y eventos temáticos."
         }
-      ]
+      ],
+      detailedDescription: null
     }
   ];
 
@@ -792,9 +822,10 @@ export default function Home() {
                         {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.title || services[selectedServiceIndex]?.title || ''}
                       </h2>
 
-                      <p className="text-muted-foreground mb-6 leading-relaxed">
-                        {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.description || services[selectedServiceIndex]?.description || ''}
-                      </p>
+                      <div className="text-muted-foreground mb-6 leading-relaxed whitespace-pre-line">
+                        {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.description ||
+                         services[selectedServiceIndex]?.description || ''}
+                      </div>
 
                       <div className="mb-6">
                         <h4 className="font-semibold mb-3">Características del servicio</h4>
@@ -807,26 +838,45 @@ export default function Home() {
 
                       {/* Additional Content for Scroll Testing */}
                       <div className="space-y-4 pt-6 border-t">
-                        <h3 className="text-lg font-semibold">Sobre este servicio</h3>
-                        <p className="text-muted-foreground leading-relaxed">
-                          Nuestro servicio de {services[selectedServiceIndex].title.toLowerCase()} está diseñado 
-                          para realzar tu belleza natural y adaptarse a la ocasión especial. Cada servicio incluye 
-                          una consulta personalizada para entender tus necesidades y preferencias específicas.
-                        </p>
+                        {services[selectedServiceIndex]?.detailedDescription ? (
+                          <>
+                            <div className="whitespace-pre-line">
+                              {services[selectedServiceIndex].detailedDescription.split('\\n').map((paragraph, idx) => (
+                                <p key={idx} className="mb-4 last:mb-0 text-muted-foreground leading-relaxed">{paragraph}</p>
+                              ))}
+                            </div>
+                            {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.description && (
+                              <div className="whitespace-pre-line">
+                                {services[selectedServiceIndex].gallery[selectedGalleryImageIndex].description.split('\\n').map((paragraph, idx) => (
+                                  <p key={idx} className="mb-4 last:mb-0 text-muted-foreground leading-relaxed">{paragraph}</p>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <h3 className="text-lg font-semibold">Sobre este servicio</h3>
+                            <p className="text-muted-foreground leading-relaxed">
+                              Nuestro servicio de {services[selectedServiceIndex].title.toLowerCase()} está diseñado
+                              para realzar tu belleza natural y adaptarse a la ocasión especial. Cada servicio incluye
+                              una consulta personalizada para entender tus necesidades y preferencias específicas.
+                            </p>
 
-                        <h3 className="text-lg font-semibold">¿Qué puedes esperar?</h3>
-                        <p className="text-muted-foreground leading-relaxed">
-                          Durante tu servicio, dedicamos tiempo a preparar tu piel con productos de alta calidad 
-                          antes de aplicar el maquillaje con técnicas especializadas. Utilizamos productos 
-                          profesionales que garantizan un acabado impecable y duradero.
-                        </p>
+                            <h3 className="text-lg font-semibold">¿Qué puedes esperar?</h3>
+                            <p className="text-muted-foreground leading-relaxed">
+                              Durante tu servicio, dedicamos tiempo a preparar tu piel con productos de alta calidad
+                              antes de aplicar el maquillaje con técnicas especializadas. Utilizamos productos
+                              profesionales que garantizan un acabado impecable y duradero.
+                            </p>
 
-                        <h3 className="text-lg font-semibold">Consejos post-servicio</h3>
-                        <p className="text-muted-foreground leading-relaxed">
-                          Proporcionamos consejos personalizados para mantener tu look impecable durante 
-                          todo el evento, incluyendo recomendaciones de productos y técnicas de retoque rápido 
-                          si es necesario.
-                        </p>
+                            <h3 className="text-lg font-semibold">Consejos post-servicio</h3>
+                            <p className="text-muted-foreground leading-relaxed">
+                              Proporcionamos consejos personalizados para mantener tu look impecable durante
+                              todo el evento, incluyendo recomendaciones de productos y técnicas de retoque rápido
+                              si es necesario.
+                            </p>
+                          </>
+                        )}
                       </div>
 
                       {/* Action Buttons - Now will scroll with the content on small screens */}

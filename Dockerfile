@@ -15,6 +15,7 @@ COPY . .
 
 # Build the Next.js application
 FROM base AS builder
+RUN npx prisma generate
 RUN npm run build
 
 # Production image

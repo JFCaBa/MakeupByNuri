@@ -7,6 +7,9 @@ import { motion } from 'framer-motion';
 const AdminDashboard = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('gallery');
+  const [serviceContents, setServiceContents] = useState<any[]>([]);
+  const [editingContent, setEditingContent] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [images, setImages] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Maquillaje de día');
   const [categories, setCategories] = useState([
@@ -44,6 +47,13 @@ const AdminDashboard = () => {
           const heroUrl = data.images.length > 0 ? data.images[0]?.url : null;
           // Add cache-busting parameter to ensure we always get the latest
           setHeroImage(heroUrl ? `${heroUrl}?t=${Date.now()}` : null);
+        }
+      } else if (activeTab === 'texts') {
+        // Fetch service content
+        const res = await fetch('/api/admin/service-content');
+        if (res.ok) {
+          const data = await res.json();
+          setServiceContents(data.serviceContents || []);
         }
       }
     } catch (error) {
@@ -178,6 +188,42 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSaveServiceContent = async () => {
+    if (!editingContent) return;
+
+    try {
+      const res = await fetch('/api/admin/service-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingContent),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        showNotification('Contenido actualizado correctamente', 'success');
+
+        // Update the local state
+        setServiceContents(prev =>
+          prev.map(content =>
+            content.id === data.serviceContent.id ? data.serviceContent : content
+          )
+        );
+
+        // Close the modal
+        setIsEditing(false);
+        setEditingContent(null);
+      } else {
+        const error = await res.json();
+        showNotification(error.error || 'Error al guardar el contenido', 'error');
+      }
+    } catch (error) {
+      console.error('Error saving service content:', error);
+      showNotification('Error al guardar el contenido', 'error');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Notification Toast */}
@@ -205,7 +251,7 @@ const AdminDashboard = () => {
       {/* Navigation Tabs */}
       <nav className="border-b border-border bg-muted/30 p-4">
         <div className="flex space-x-4">
-          {['gallery', 'hero'].map((tab) => (
+          {['gallery', 'hero', 'texts'].map((tab) => (
             <button
               key={tab}
               className={`px-4 py-2 rounded-md capitalize ${
@@ -215,7 +261,7 @@ const AdminDashboard = () => {
               }`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'gallery' ? 'Galería' : tab}
+              {tab === 'gallery' ? 'Galería' : tab === 'texts' ? 'Textos' : tab}
             </button>
           ))}
         </div>
@@ -335,6 +381,110 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'texts' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold">Gestión de Textos</h2>
+                </div>
+
+                {serviceContents.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground">No hay contenido de servicios para gestionar</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-muted">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Servicio</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Descripción de la tarjeta</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Descripción detallada</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-background divide-y divide-gray-200">
+                        {serviceContents.map((content) => (
+                          <tr key={content.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium">{content.title}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm">{content.description}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm max-w-md truncate">{content.detailedDescription || "No definido"}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button
+                                className="text-primary hover:underline mr-4"
+                                onClick={() => {
+                                  setEditingContent(content);
+                                  setIsEditing(true);
+                                }}
+                              >
+                                Editar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Edit Modal */}
+                {isEditing && editingContent && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-background rounded-md p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <h3 className="text-lg font-semibold mb-4">Editar contenido de {editingContent.title}</h3>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Descripción de la tarjeta</label>
+                          <textarea
+                            value={editingContent.description}
+                            onChange={(e) => setEditingContent({...editingContent, description: e.target.value})}
+                            className="w-full p-2 border rounded-md min-h-[100px]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Descripción detallada (opcional)</label>
+                          <textarea
+                            value={editingContent.detailedDescription || ''}
+                            onChange={(e) => setEditingContent({...editingContent, detailedDescription: e.target.value})}
+                            className="w-full p-2 border rounded-md min-h-[150px]"
+                            placeholder="Deja en blanco si no quieres usar descripción detallada"
+                          />
+                        </div>
+
+                        <div className="flex justify-end space-x-3 pt-4">
+                          <button
+                            className="px-4 py-2 border rounded-md hover:bg-muted"
+                            onClick={() => {
+                              setIsEditing(false);
+                              setEditingContent(null);
+                            }}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                            onClick={handleSaveServiceContent}
+                          >
+                            Guardar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </>
