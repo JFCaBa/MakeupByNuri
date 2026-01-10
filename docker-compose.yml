@@ -10,6 +10,9 @@ services:
       - "3003:3000"  # Expose the service on port 3003
     volumes:
       - ./db:/app/db  # Mount the database directory to persist changes
+      - ./prisma/db:/app/prisma/db  # Mount the prisma database directory to persist changes
+      - ./backups:/app/backups  # Mount the backups directory to persist backups
+      - ./public/images:/app/public/images  # Mount the images directory to persist uploaded images
     env_file:
       - .env
     environment:

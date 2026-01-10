@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -32,20 +26,20 @@ model Post {
 }
 
 model ServiceContent {
-  id                String   @id @default(cuid())
-  title             String   @unique // The service name like "Novia", "Maquillaje de día", etc.
-  description       String   // The main card description
-  detailedDescription String? // The detailed description for the popup
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  title               String   @unique
+  description         String
+  detailedDescription String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model Testimonial {
   id        String   @id @default(cuid())
   email     String
   name      String
-  rating    Int      // 1-5 stars
-  text      String   // Review text (max 75 characters)
+  rating    Int
+  text      String
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

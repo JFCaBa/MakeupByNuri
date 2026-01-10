@@ -25,11 +25,19 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  
+  // Backup management state
+  const [backupLoading, setBackupLoading] = useState(false);
+  const [backups, setBackups] = useState<any[]>([]);
+  const [backupMessage, setBackupMessage] = useState('');
 
   // Load data when component mounts and when activeTab changes
   useEffect(() => {
     fetchData();
-  }, [activeTab, selectedCategory]);
+    if (activeTab === 'backup') {
+      loadBackups();
+    }
+  }, [activeTab]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -70,6 +78,131 @@ const AdminDashboard = () => {
       showNotification('Error loading data', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadBackups = async () => {
+    setBackupLoading(true);
+    try {
+      const res = await fetch('/api/admin/backup?action=list');
+      if (res.ok) {
+        const data = await res.json();
+        setBackups(data.backups || []);
+      } else {
+        const error = await res.json();
+        showNotification(error.error || 'Error loading backups', 'error');
+      }
+    } catch (error) {
+      console.error('Error loading backups:', error);
+      showNotification('Error loading backups', 'error');
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  const createBackup = async () => {
+    setBackupLoading(true);
+    setBackupMessage('Creating backup...');
+    try {
+      const res = await fetch('/api/admin/backup?action=create');
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        showNotification(data.message || 'Backup created successfully', 'success');
+        // Reload backups
+        await loadBackups();
+      } else {
+        showNotification(data.error || 'Failed to create backup', 'error');
+      }
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      showNotification('Error creating backup', 'error');
+    } finally {
+      setBackupLoading(false);
+      setBackupMessage('');
+    }
+  };
+
+  const restoreBackup = async (backupName: string) => {
+    if (!confirm(`Are you sure you want to restore from backup: ${backupName}? This will overwrite the current database.`)) {
+      return;
+    }
+
+    setBackupLoading(true);
+    setBackupMessage(`Restoring from ${backupName}...`);
+    try {
+      const res = await fetch(`/api/admin/backup?action=restore&file=${encodeURIComponent(backupName)}`);
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        showNotification(data.message || 'Database restored successfully', 'success');
+      } else {
+        showNotification(data.error || 'Failed to restore backup', 'error');
+      }
+    } catch (error) {
+      console.error('Error restoring backup:', error);
+      showNotification('Error restoring backup', 'error');
+    } finally {
+      setBackupLoading(false);
+      setBackupMessage('');
+    }
+  };
+
+  const deleteBackup = async (backupName: string) => {
+    if (!confirm(`Are you sure you want to delete the backup: ${backupName}? This action cannot be undone.`)) {
+      return;
+    }
+
+    setBackupLoading(true);
+    setBackupMessage(`Deleting backup ${backupName}...`);
+    try {
+      const res = await fetch(`/api/admin/backup?file=${encodeURIComponent(backupName)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        showNotification(data.message || 'Backup deleted successfully', 'success');
+        // Reload backups
+        await loadBackups();
+      } else {
+        showNotification(data.error || 'Failed to delete backup', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting backup:', error);
+      showNotification('Error deleting backup', 'error');
+    } finally {
+      setBackupLoading(false);
+      setBackupMessage('');
+    }
+  };
+
+  const restoreImageBackup = async (backupName: string) => {
+    if (!confirm(`Are you sure you want to restore images from backup: ${backupName}? This will overwrite current images.`)) {
+      return;
+    }
+
+    setBackupLoading(true);
+    setBackupMessage(`Restoring images from ${backupName}...`);
+    try {
+      // Since image restore is more complex, we'll trigger it via the same endpoint
+      // with a different action parameter
+      const res = await fetch(`/api/admin/backup?action=restore-images&file=${encodeURIComponent(backupName)}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        showNotification(data.message || 'Images restored successfully', 'success');
+      } else {
+        showNotification(data.error || 'Failed to restore images', 'error');
+      }
+    } catch (error) {
+      console.error('Error restoring images:', error);
+      showNotification('Error restoring images', 'error');
+    } finally {
+      setBackupLoading(false);
+      setBackupMessage('');
     }
   };
 
@@ -314,18 +447,21 @@ const AdminDashboard = () => {
 
       {/* Navigation Tabs */}
       <nav className="border-b border-border bg-muted/30 p-4">
-        <div className="flex space-x-4">
-          {['gallery', 'hero', 'texts', 'testimonials'].map((tab) => (
+        <div className="flex space-x-4 overflow-x-auto">
+          {['gallery', 'hero', 'texts', 'testimonials', 'backup'].map((tab) => (
             <button
               key={tab}
-              className={`px-4 py-2 rounded-md capitalize ${
+              className={`px-4 py-2 rounded-md capitalize whitespace-nowrap ${
                 activeTab === tab
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted hover:bg-accent'
               }`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'gallery' ? 'Galería' : tab === 'texts' ? 'Textos' : tab === 'testimonials' ? 'Reseñas' : tab}
+              {tab === 'gallery' ? 'Galería' : 
+               tab === 'texts' ? 'Textos' : 
+               tab === 'testimonials' ? 'Reseñas' : 
+               tab === 'backup' ? 'Backup' : tab}
             </button>
           ))}
         </div>
@@ -636,6 +772,111 @@ const AdminDashboard = () => {
                     </table>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {activeTab === 'backup' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold">Gestión de Backups</h2>
+                </div>
+
+                <div className="bg-muted/50 p-6 rounded-lg">
+                  <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                    <button
+                      className={`flex-1 bg-primary text-primary-foreground py-3 px-6 rounded-md hover:bg-primary/90 transition-colors ${
+                        backupLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                      onClick={createBackup}
+                      disabled={backupLoading}
+                    >
+                      {backupLoading && backupMessage.includes('Creating') ? 'Creando...' : 'Crear Nuevo Backup'}
+                    </button>
+                  </div>
+
+                  {backupMessage && (
+                    <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+                      {backupMessage}
+                    </div>
+                  )}
+
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted px-4 py-3 font-medium">Lista de Backups</div>
+                    {backupLoading && activeTab === 'backup' ? (
+                      <div className="p-8 text-center">
+                        <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-primary rounded-full mb-2"></div>
+                        <p>Cargando backups...</p>
+                      </div>
+                    ) : backups.length === 0 ? (
+                      <div className="p-8 text-center text-muted-foreground">
+                        No se encontraron backups. Crea uno nuevo para empezar.
+                      </div>
+                    ) : (
+                      <div className="divide-y">
+                        {backups.map((backup, index) => (
+                          <div key={index} className="p-4 flex flex-wrap items-center justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{backup.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {new Date(backup.createdAt).toLocaleString()} •{' '}
+                                {(backup.size / 1024).toFixed(2)} KB •{' '}
+                                <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                  backup.type === 'database'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-purple-100 text-purple-800'
+                                }`}>
+                                  {backup.type === 'database' ? 'Base de datos' : 'Imágenes'}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex space-x-2">
+                              {backup.type === 'database' && (
+                                <button
+                                  className="px-3 py-1 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 text-sm"
+                                  onClick={() => restoreBackup(backup.name)}
+                                  disabled={backupLoading}
+                                >
+                                  Restaurar
+                                </button>
+                              )}
+                              {backup.type === 'images' && (
+                                <button
+                                  className="px-3 py-1 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 text-sm"
+                                  onClick={() => restoreImageBackup(backup.name)}
+                                  disabled={backupLoading}
+                                >
+                                  Restaurar
+                                </button>
+                              )}
+                              <button
+                                className="px-3 py-1 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 text-sm"
+                                onClick={() => deleteBackup(backup.name)}
+                                disabled={backupLoading}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <h3 className="font-medium text-yellow-800 mb-2">Importante:</h3>
+                    <ul className="list-disc pl-5 space-y-1 text-yellow-700 text-sm">
+                      <li>Los backups se almacenan en el servidor en formato binario SQLite</li>
+                      <li>La restauración de un backup sobrescribirá la base de datos actual</li>
+                      <li>Se crea automáticamente un backup de seguridad antes de cada restauración</li>
+                      <li>Después de la restauración, es posible que necesite recargar la página</li>
+                    </ul>
+                  </div>
+                </div>
               </motion.div>
             )}
           </>

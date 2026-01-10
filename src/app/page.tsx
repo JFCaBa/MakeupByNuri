@@ -195,7 +195,7 @@ export default function Home() {
                 .map((img: any) => ({
                   image: img.url,
                   title: `${category.name}`,
-                  description: `Trabajo de ${category.name.toLowerCase()}`
+                  description: ""
                 })),
               detailedDescription: detailedDescription // Add the detailed description for use in the popup
             };
@@ -883,13 +883,6 @@ export default function Home() {
                                 <p key={idx} className="mb-4 last:mb-0 text-muted-foreground leading-relaxed">{paragraph}</p>
                               ))}
                             </div>
-                            {services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.description && (
-                              <div className="whitespace-pre-line">
-                                {services[selectedServiceIndex].gallery[selectedGalleryImageIndex].description.split('\\n').map((paragraph, idx) => (
-                                  <p key={idx} className="mb-4 last:mb-0 text-muted-foreground leading-relaxed">{paragraph}</p>
-                                ))}
-                              </div>
-                            )}
                           </>
                         ) : (
                           <>
