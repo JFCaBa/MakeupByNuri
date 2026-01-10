@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { Star } from 'lucide-react';
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -23,6 +24,7 @@ const AdminDashboard = () => {
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
 
   // Load data when component mounts and when activeTab changes
   useEffect(() => {
@@ -54,6 +56,13 @@ const AdminDashboard = () => {
         if (res.ok) {
           const data = await res.json();
           setServiceContents(data.serviceContents || []);
+        }
+      } else if (activeTab === 'testimonials') {
+        // Fetch testimonials
+        const res = await fetch('/api/admin/testimonials');
+        if (res.ok) {
+          const data = await res.json();
+          setTestimonials(data.testimonials || []);
         }
       }
     } catch (error) {
@@ -224,6 +233,61 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleTogglePublish = async (id: string) => {
+    try {
+      const res = await fetch('/api/admin/testimonials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        showNotification(data.message, 'success');
+
+        // Update local state
+        setTestimonials(prev =>
+          prev.map(t =>
+            t.id === id ? { ...t, published: !t.published } : t
+          )
+        );
+      } else {
+        const error = await res.json();
+        showNotification(error.error || 'Error al actualizar la reseña', 'error');
+      }
+    } catch (error) {
+      console.error('Error toggling publish:', error);
+      showNotification('Error al actualizar la reseña', 'error');
+    }
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta reseña?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/testimonials?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        showNotification('Reseña eliminada correctamente', 'success');
+
+        // Remove from local state
+        setTestimonials(prev => prev.filter(t => t.id !== id));
+      } else {
+        const error = await res.json();
+        showNotification(error.error || 'Error al eliminar la reseña', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting testimonial:', error);
+      showNotification('Error al eliminar la reseña', 'error');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Notification Toast */}
@@ -251,7 +315,7 @@ const AdminDashboard = () => {
       {/* Navigation Tabs */}
       <nav className="border-b border-border bg-muted/30 p-4">
         <div className="flex space-x-4">
-          {['gallery', 'hero', 'texts'].map((tab) => (
+          {['gallery', 'hero', 'texts', 'testimonials'].map((tab) => (
             <button
               key={tab}
               className={`px-4 py-2 rounded-md capitalize ${
@@ -261,7 +325,7 @@ const AdminDashboard = () => {
               }`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'gallery' ? 'Galería' : tab === 'texts' ? 'Textos' : tab}
+              {tab === 'gallery' ? 'Galería' : tab === 'texts' ? 'Textos' : tab === 'testimonials' ? 'Reseñas' : tab}
             </button>
           ))}
         </div>
@@ -483,6 +547,93 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'testimonials' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold">Gestión de Reseñas</h2>
+                  <div className="text-sm text-muted-foreground">
+                    {testimonials.filter(t => !t.published).length} pendientes de publicar
+                  </div>
+                </div>
+
+                {testimonials.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground">No hay reseñas todavía</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-muted">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Nombre</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Valoración</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Reseña</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Estado</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Fecha</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-background divide-y divide-gray-200">
+                        {testimonials.map((testimonial) => (
+                          <tr
+                            key={testimonial.id}
+                            className={!testimonial.published ? 'bg-yellow-50 dark:bg-yellow-900/10' : ''}
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium">{testimonial.name}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-muted-foreground">{testimonial.email}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex">
+                                {[...Array(testimonial.rating)].map((_, i) => (
+                                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                                ))}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm max-w-md">{testimonial.text}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 text-xs rounded-full ${
+                                testimonial.published
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                              }`}>
+                                {testimonial.published ? 'Publicada' : 'Pendiente'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {new Date(testimonial.createdAt).toLocaleDateString('es-ES')}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button
+                                className="text-primary hover:underline mr-4"
+                                onClick={() => handleTogglePublish(testimonial.id)}
+                              >
+                                {testimonial.published ? 'Ocultar' : 'Publicar'}
+                              </button>
+                              <button
+                                className="text-destructive hover:underline"
+                                onClick={() => handleDeleteTestimonial(testimonial.id)}
+                              >
+                                Eliminar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </motion.div>

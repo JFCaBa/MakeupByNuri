@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Star, Phone, Mail, MapPin, Calendar, Heart, Sparkles, Clock, Users, MessageCircle, Facebook, Instagram, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import ZoomModal from '@/components/ZoomModal';
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
+import TestimonialSubmissionModal from '@/components/TestimonialSubmissionModal';
+import StarRating from '@/components/StarRating';
 
 // Default fallback data (will be used until API data is loaded)
 const DEFAULT_SERVICES: any[] = [];
@@ -32,6 +35,9 @@ export default function Home() {
   const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -93,6 +99,27 @@ export default function Home() {
         prev === currentService.gallery.length - 1 ? 0 : prev + 1
       );
     }
+  };
+
+  const fetchTestimonials = async () => {
+    try {
+      const response = await fetch('/api/testimonials');
+      if (response.ok) {
+        const data = await response.json();
+        setTestimonials(data.testimonials || []);
+      }
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+    }
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleTestimonialSuccess = () => {
+    showNotification('¡Gracias por tu reseña! Será publicada una vez verificada.', 'success');
   };
 
   // Fetch categories and gallery images from API
@@ -206,6 +233,11 @@ export default function Home() {
     };
 
     fetchData();
+  }, []);
+
+  // Fetch testimonials
+  useEffect(() => {
+    fetchTestimonials();
   }, []);
 
   // Default fallback data
@@ -401,24 +433,6 @@ export default function Home() {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "María González",
-      text: "Absolutamente maravillosa. Mi maquillaje de boda fue perfecto y duró todo el día.",
-      rating: 5
-    },
-    {
-      name: "Ana Rodríguez",
-      text: "Profesionalismo y atención al detalle increíbles. Me sentí hermosa en mi evento.",
-      rating: 5
-    },
-    {
-      name: "Carmen López",
-      text: "Experiencia demostrable y resultados que hablan por sí solos. Totalmente recomendada.",
-      rating: 5
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -594,27 +608,53 @@ export default function Home() {
 
       {/* Testimonials Section */}
       <section className="py-20 px-4 bg-secondary/30">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Testimonios</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold">
               Clientes
               <span className="text-primary block">Felices</span>
             </h2>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-6">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4 italic">"{testimonial.text}"</p>
-                <p className="font-semibold">{testimonial.name}</p>
-              </Card>
-            ))}
+
+          {testimonials.length === 0 ? (
+            <p className="text-center text-muted-foreground">
+              Sé el primero en dejar una reseña
+            </p>
+          ) : (
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full max-w-5xl mx-auto"
+            >
+              <CarouselContent>
+                {testimonials.map((testimonial) => (
+                  <CarouselItem key={testimonial.id} className="md:basis-1/2 lg:basis-1/3">
+                    <Card className="p-6 h-full">
+                      <div className="flex mb-4">
+                        <StarRating rating={testimonial.rating} readonly size="sm" />
+                      </div>
+                      <p className="text-muted-foreground mb-4 italic">"{testimonial.text}"</p>
+                      <p className="font-semibold">{testimonial.name}</p>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-12 hidden md:flex" />
+              <CarouselNext className="-right-12 hidden md:flex" />
+            </Carousel>
+          )}
+
+          <div className="flex justify-center mt-8">
+            <Button
+              variant="outline"
+              size="default"
+              onClick={() => setIsTestimonialModalOpen(true)}
+            >
+              + Añade el tuyo
+            </Button>
           </div>
         </div>
       </section>
@@ -656,9 +696,7 @@ export default function Home() {
               
               <div className="mt-8 p-6 bg-primary/10 rounded-lg">
                 <h4 className="font-semibold mb-2">Horario de Atención</h4>
-                <p className="text-sm text-muted-foreground">Lunes a Viernes: 10:00 - 20:00</p>
-                <p className="text-sm text-muted-foreground">Sábados: 10:00 - 14:00</p>
-                <p className="text-sm text-muted-foreground">Domingos: Cerrado</p>
+                <p className="text-sm text-muted-foreground">Lunes a Domingo: 10:00 - 20:00</p>
               </div>
             </div>
             
@@ -711,7 +749,7 @@ export default function Home() {
                 Facebook
               </Button>
             </a>
-            <a href="https://instagram.com/TU_PERFIL_INSTAGRAM" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.instagram.com/nuriacatalamkp_?igsh=eG9xc240YmYxbWI1&utm_source=qr" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" className="text-background hover:bg-background/20">
                 <Instagram className="w-4 h-4 mr-2" />
                 Instagram
@@ -937,6 +975,24 @@ export default function Home() {
         src={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.image || services[selectedServiceIndex]?.image || ''}
         alt={services[selectedServiceIndex]?.gallery?.[selectedGalleryImageIndex]?.title || services[selectedServiceIndex]?.title || ''}
       />
+
+      {/* Testimonial Submission Modal */}
+      <TestimonialSubmissionModal
+        isOpen={isTestimonialModalOpen}
+        onClose={() => setIsTestimonialModalOpen(false)}
+        onSuccess={handleTestimonialSuccess}
+      />
+
+      {/* Notification Toast */}
+      {notification && (
+        <div
+          className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+            notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          }`}
+        >
+          {notification.message}
+        </div>
+      )}
     </div>
   );
 }

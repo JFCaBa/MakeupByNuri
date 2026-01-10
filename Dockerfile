@@ -27,8 +27,17 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
+# Copy Prisma files for database migrations and seeding
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+
 # Expose port 3000 to the Docker host
 EXPOSE 3000
 
 # Define the command to run the application
-CMD ["node", "server.js"]
+CMD ["./docker-entrypoint.sh"]
