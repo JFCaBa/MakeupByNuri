@@ -1,0 +1,272 @@
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260111_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260111_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 2 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 2
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260110_213733.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260112_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260112_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 4 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 4
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260113_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260113_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 5 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 5
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260114_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260114_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 6 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 6
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260115_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260115_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 7 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 7
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260116_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260116_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 8 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 8
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260117_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260117_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 9 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 9
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260118_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260118_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 10 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 10
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260119_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260119_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 11 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 11
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260120_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260120_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 12 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 12
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260121_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260121_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 13 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 13
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260122_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260122_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 14 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 14
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260123_020002.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260123_020002.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 15 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 15
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260124_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260124_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 16 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 16
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260125_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260125_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 17 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 17
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260126_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260126_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 18 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 18
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
+[0;34m=== Database Backup Script ===[0m
+[0;34mBacking up database from running container...[0m
+OCI runtime exec failed: exec failed: unable to start container process: exec: "sqlite3": executable file not found in $PATH: unknown
+[0;32m✓ Backed up from container[0m
+[0;32m✓ Created SQL dump[0m
+[0;32m✓ Compressed SQL dump[0m
+[0;32m✓ Backup completed successfully![0m
+  Database backup: /opt/MakeupByNuri/backups/db/custom_db_backup_20260127_020001.db (24K)
+  SQL dump (gzipped): /opt/MakeupByNuri/backups/db/custom_db_backup_20260127_020001.sql.gz (4.0K)
+[0;34mCleaning up old backups...[0m
+[0;32m✓ Kept 19 most recent backups[0m
+
+[0;34mBackup Statistics:[0m
+Total backups: 19
+Backup location: /opt/MakeupByNuri/backups/db
+Latest backup: custom_db_backup_20260112_054628.db
