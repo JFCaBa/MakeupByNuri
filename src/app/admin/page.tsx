@@ -835,6 +835,13 @@ const AdminDashboard = () => {
                               </div>
                             </div>
                             <div className="flex space-x-2">
+                              <a
+                                href={`/api/admin/backup?action=download&file=${encodeURIComponent(backup.name)}`}
+                                download={backup.name}
+                                className="px-3 py-1 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
+                              >
+                                Descargar
+                              </a>
                               {backup.type === 'database' && (
                                 <button
                                   className="px-3 py-1 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 text-sm"

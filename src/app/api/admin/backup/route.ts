@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { execSync } from 'child_process';
-import { existsSync, readdirSync, statSync, unlinkSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, statSync, unlinkSync } from 'fs';
 import path from 'path';
 import { checkAuth } from '@/lib/utils/auth-server';
 
@@ -33,6 +33,12 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Backup file not specified' }, { status: 400 });
       }
       return await restoreBackup(backupFile);
+    } else if (action === 'download') {
+      const backupFile = searchParams.get('file');
+      if (!backupFile) {
+        return NextResponse.json({ error: 'Backup file not specified' }, { status: 400 });
+      }
+      return await downloadBackup(backupFile);
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
@@ -158,6 +164,32 @@ export async function DELETE(request: NextRequest) {
       error: `Delete failed: ${error.message}`
     }, { status: 500 });
   }
+}
+
+async function downloadBackup(backupFile: string) {
+  if (!/^[a-zA-Z0-9_-]+\.(db|tar\.gz)$/.test(backupFile)) {
+    return NextResponse.json({ error: 'Invalid backup file name' }, { status: 400 });
+  }
+
+  const backupPath = path.join(BACKUP_DIR, backupFile);
+
+  if (!existsSync(backupPath)) {
+    return NextResponse.json({ error: 'Backup file not found' }, { status: 404 });
+  }
+
+  const fileBuffer = readFileSync(backupPath);
+  const contentType = backupFile.endsWith('.db')
+    ? 'application/x-sqlite3'
+    : 'application/gzip';
+
+  return new NextResponse(fileBuffer, {
+    status: 200,
+    headers: {
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename="${backupFile}"`,
+      'Content-Length': String(fileBuffer.length),
+    },
+  });
 }
 
 async function listBackups() {
