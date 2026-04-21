@@ -467,7 +467,7 @@ export default function Home() {
             Maquillaje Profesional
           </Badge>
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <h1 className="font-script text-6xl md:text-8xl font-bold mb-6 leading-tight">
             Belleza que
             <span className="text-accent block">Transforma</span>
           </h1>
@@ -533,24 +533,24 @@ export default function Home() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Card className="text-center p-6 border-2 border-secondary hover:bg-secondary/40 transition-colors">
+              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Mucho mimo y cuidado</h3>
               <p className="text-muted-foreground">Tratamiento personalizado con productos de alta calidad</p>
             </Card>
             
-            <Card className="text-center p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Card className="text-center p-6 border-2 border-secondary hover:bg-secondary/40 transition-colors">
+              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Todo tipo de edades</h3>
               <p className="text-muted-foreground">Servicios adaptados para cada etapa de la vida</p>
             </Card>
             
-            <Card className="text-center p-6 border-2 border-primary/20 hover:border-primary/40 transition-colors">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Card className="text-center p-6 border-2 border-secondary hover:bg-secondary/40 transition-colors">
+              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Resultados duraderos</h3>
@@ -565,7 +565,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Servicios</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="font-script text-5xl md:text-6xl font-bold mb-4">
               Para todo tipo de
               <span className="text-primary block">Eventos</span>
             </h2>
@@ -611,7 +611,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Testimonios</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold">
+            <h2 className="font-script text-5xl md:text-6xl font-bold">
               Clientes
               <span className="text-primary block">Felices</span>
             </h2>
@@ -664,7 +664,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-primary text-primary-foreground">Contacto</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="font-script text-5xl md:text-6xl font-bold mb-4">
               Hagamos
               <span className="text-primary block">Magia</span>
             </h2>
@@ -684,8 +684,15 @@ export default function Home() {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-primary" />
-                  <span>info@makeupbynuri.com</span>
+                  <Instagram className="w-5 h-5 text-primary" />
+                  <a
+                    href="https://www.instagram.com/makeupbynuri"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    @makeupbynuri
+                  </a>
                 </div>
                 
                 <div className="flex items-center gap-3">
@@ -724,8 +731,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-6">
             <div className="flex items-center justify-center mb-2">
-              <img src="/logo.svg" alt="Maquillaje Profesional Logo" className="h-8 mr-2" />
-              <h3 className="text-2xl font-bold">Maquillaje Profesional</h3>
+              <img src="/logo-texto.png" alt="MakeupByNuri" className="h-[240px] brightness-0 invert" />
             </div>
             <p className="text-sm opacity-80">Belleza que transforma</p>
           </div>
