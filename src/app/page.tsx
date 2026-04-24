@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { Star, Phone, Mail, MapPin, Calendar, Heart, Sparkles, Clock, Users, MessageCircle, Facebook, Instagram, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { Star, Phone, Mail, MapPin, Calendar, Heart, Sparkles, Clock, Users, MessageCircle, Facebook, Instagram, X, ChevronLeft, ChevronRight, ZoomIn, BookOpen } from 'lucide-react';
 import ZoomModal from '@/components/ZoomModal';
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from '@/components/ui/carousel';
 import TestimonialSubmissionModal from '@/components/TestimonialSubmissionModal';
@@ -747,6 +747,12 @@ export default function Home() {
               <Button variant="ghost" size="sm" className="text-background hover:bg-background/20">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 WhatsApp
+              </Button>
+            </a>
+            <a href="/blog">
+              <Button variant="ghost" size="sm" className="text-background hover:bg-background/20">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Blog
               </Button>
             </a>
             <a href="https://facebook.com/TU_PAGINA_FACEBOOK" target="_blank" rel="noopener noreferrer">

@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
     // 构建时忽略ESLint错误
     ignoreDuringBuilds: true,
   },
+  async redirects() {
+    return [
+      { source: '/pricing', destination: '/#services', permanent: true },
+      { source: '/contact', destination: '/#contact', permanent: true },
+    ];
+  },
   async rewrites() {
     return {
       beforeFiles: [
